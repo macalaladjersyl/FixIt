@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FIXIT - server.js (source code)</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#0d1626;color:#f1f5f9}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:calc(18px + env(safe-area-inset-top,0px)) 24px 18px;background:#16233a;border-bottom:1px solid #22314d}
+.bar b{font-size:20px;color:#fff;white-space:nowrap}
+.bar span{flex:1 1 260px;min-width:200px;font-size:14px;line-height:1.4;color:#93a4bf}
+.btns{display:flex;gap:16px;flex-wrap:wrap}
+button{font:inherit;font-size:16px;font-weight:600;padding:12px 24px;border:0;border-radius:12px;background:#fcc419;color:#1a1a1a;cursor:pointer;white-space:nowrap}
+button:active{transform:translateY(1px)}
+pre{margin:0;padding:26px 24px calc(40px + env(safe-area-inset-bottom,0px));font:600 15px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;color:#f1f5f9;tab-size:2;white-space:pre;overflow-x:auto}
+@media(max-width:560px){.bar{padding-left:14px;padding-right:14px}.btns{width:100%}.btns button{flex:1}pre{font-size:13px;padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+<div class="bar">
+<b>server.js</b>
+<span>This page shows the code. Tap Download to save the real file as server.js (Put it in fixit-server), or copy the code.</span>
+<div class="btns"><button type="button" id="copy">Copy code</button><button type="button" id="dl">Download server.js</button></div>
+</div>
+<pre id="code" data-name="server.js" data-mime="text/javascript">'use strict';
+/* FIXIT server: serves the website and keeps the shared data (homepage content, reports, student and teacher accounts).
+   No npm packages needed. Run:  node server.js   (Node 18 or newer) */
+const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto');
+
+const PORT = +process.env.PORT || 3000;
+const PUB = path.join(__dirname, 'public');
+const DATA = process.env.DATA_DIR || path.join(__dirname, 'data');
+const TRUST_PROXY = process.env.TRUST_PROXY === '1';
+const TOKEN_HOURS = 12;
+fs.mkdirSync(DATA, { recursive: true });
+const PHOTO_DIR = path.join(DATA, 'photos'); /* report photos are kept as small image files here (not inside db.json) */
+fs.mkdirSync(PHOTO_DIR, { recursive: true });
+const PORTAL_DIR = path.join(DATA, 'portal'); /* ASHS Portal files: the uploaded organizational chart (PNG/JPG/PDF) and the photos of persons in charge */
+fs.mkdirSync(PORTAL_DIR, { recursive: true });
+
+/* ---------- config: signing secret + admin password ---------- */
+const CFG_FILE = path.join(DATA, 'config.json');
+let cfg = {}; try { cfg = JSON.parse(fs.readFileSync(CFG_FILE, 'utf8')); } catch (e) {}
+let cfgDirty = false;
+if (!cfg.secret) { cfg.secret = crypto.randomBytes(32).toString('hex'); cfgDirty = true; }
+/* The admin account is created and managed by the admin themselves (page: /admin-account).
+   The password is stored only as a salted hash, so nobody can read it from config.json. */
+/* Teacher code: one school-wide code that teachers type when they create their own account. It keeps students and outsiders from
+   registering as teachers. It starts as ASHSTEACHERS2026 and the admin can see and change it on the Profile page.
+   The admin does not create or approve any teacher account. */
+if (!cfg.teacherCode) { cfg.teacherCode = 'ASHSTEACHERS2026'; cfgDirty = true; } /* starting code; the admin can change it any time on the Profile page (it is then kept in data/config.json) */
+if (cfg.adminPassword) { delete cfg.adminPassword; cfgDirty = true; } /* old plain-text password from the previous version: removed */
+if ((process.argv.indexOf('--reset-admin') &gt; -1 || process.argv.indexOf('--clear-all') &gt; -1) &amp;&amp; cfg.admin) {
+  delete cfg.admin; cfgDirty = true;
+  console.log('\n  Admin account cleared. The admin can create a new one at /admin-account.\n');
+}
+let SETUP_CODE = cfg.admin ? null : crypto.randomBytes(4).toString('hex'); /* one-time code, needed to create the first admin */
+const CODE_FILE = path.join(DATA, 'SETUP-CODE.txt'); /* the code is also saved here while no admin exists, so it is easy to find; the file is deleted once the admin account is created */
+function syncCodeFile() {
+  try {
+    if (SETUP_CODE) { fs.mkdirSync(DATA, { recursive: true }); fs.writeFileSync(CODE_FILE, 'Admin setup code: ' + SETUP_CODE + '\r\n\r\nOn the website open Profile &gt; Admin, enter this code and choose the admin username and password.\r\nThis file is deleted automatically after the admin account is created.\r\n'); }
+    else if (fs.existsSync(CODE_FILE)) fs.unlinkSync(CODE_FILE);
+  } catch (e) {}
+}
+syncCodeFile();
+function writeTeacherCodeFile() { try { fs.writeFileSync(path.join(DATA, 'TEACHER-CODE.txt'), 'Teacher code: ' + cfg.teacherCode + '\r\n\r\nGive this code to your teachers. They type it once when they create their own teacher account on the website (Profile &gt; Teacher &gt; Create a teacher account).\r\n'); } catch (e) {} }
+writeTeacherCodeFile();
+if (cfgDirty) fs.writeFileSync(CFG_FILE, JSON.stringify(cfg, null, 2), { mode: 0o600 });
+
+/* ---------- data (one JSON file, written safely) ---------- */
+const DB_FILE = path.join(DATA, 'db.json');
+let db = { content: null, contentRev: 0, reports: [], students: [], teachers: [], seq: 0 };
+try { Object.assign(db, JSON.parse(fs.readFileSync(DB_FILE, 'utf8'))); } catch (e) {}
+const BUILTIN = /^d-[glev]\d+$/; /* the old built-in sample entries: removed from the saved homepage content */
+if (db.content &amp;&amp; typeof db.content === 'object') {
+  let changed = false;
+  ['grand', 'latest', 'events'].forEach(function (t) { if (Array.isArray(db.content[t])) { const n = db.content[t].length; db.content[t] = db.content[t].filter(function (x) { return !(x &amp;&amp; BUILTIN.test(String(x.id))); }); if (db.content[t].length !== n) changed = true; } });
+  if (changed) db.contentRev = (+db.contentRev || 0) + 1;
+}
+if (process.argv.indexOf('--clear-homepage') &gt; -1) { /* wipes ALL homepage entries and their photos: Grand Project, Latest in ASHS, Events */
+  db.content = null; db.contentRev = (+db.contentRev || 0) + 1;
+  console.log('\n  Homepage content cleared (all entries and photos). Reports and accounts were not touched.\n');
+}
+const hasFlag = function (f) { return process.argv.indexOf(f) &gt; -1 || process.argv.indexOf('--clear-all') &gt; -1; };
+
+function wipeReports() { /* removes ALL reports and their photos */
+  db.reports = []; db.seq = 0;
+  try { fs.readdirSync(PHOTO_DIR).forEach(function (f) { if (/^RP-\d+\.jpg$/.test(f)) fs.unlinkSync(path.join(PHOTO_DIR, f)); }); } catch (e) {}
+}
+
+if (hasFlag('--clear-reports') &amp;&amp; !hasFlag('--clear-accounts')) { /* reports only; accounts stay */
+  wipeReports();
+  console.log('\n  All reports cleared (and their photos). Accounts were not touched.\n');
+}
+if (hasFlag('--clear-accounts')) { /* student + teacher accounts AND their reports */
+  db.students = []; db.teachers = [];
+  wipeReports();
+  console.log('\n  All student and teacher accounts cleared, together with their reports and photos.\n');
+}
+if (process.argv.indexOf('--clear-all') &gt; -1) { /* everything: homepage too (admin is reset at the top) */
+  db.content = null; db.contentRev = (+db.contentRev || 0) + 1;
+  console.log('\n  Homepage cleared too.\n');
+}
+let saveTimer = null;
+function writeDb() { const tmp = DB_FILE + '.tmp'; fs.writeFileSync(tmp, JSON.stringify(db, null, 2)); /* indented so it is easy to read */ fs.renameSync(tmp, DB_FILE); }
+function save() { if (saveTimer) return; saveTimer = setTimeout(function () { saveTimer = null; try { writeDb(); } catch (e) { console.error('Could not save data:', e.message); } }, 200); }
+function flush() { if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; } try { writeDb(); } catch (e) {} }
+['SIGINT', 'SIGTERM'].forEach(function (s) { process.on(s, function () { flush(); process.exit(0); }); });
+const presence = {}; /* section -&gt; last check-in (ms). Lives in memory only. */
+
+/* ---------- constants ---------- */
+const SECTIONS = {
+  '12': ['Descartes', 'Euler', 'Einstein', 'Euclid', 'Fibonacci', 'Laplace', 'Leibniz', 'Newton', 'Pascal', 'Pearson', 'Philip Crosby', 'Elton Mayo', 'Douglas McGregor', 'Luca Pacioli', 'Aquinas', 'Aurelius', 'Confucius', 'Freud', 'Mencius', 'Shakespeare'],
+  '11': ['Luminaries', 'Pathfinders', 'Practitioners', 'Thinkers', 'Innovators', 'Developers', 'Designers', 'Diplomats', 'Empiricists', 'Strategists', 'Voyagers', 'Advocates', 'Ambassadors', 'Analysts', 'Aspirers', 'Builders', 'Catalysts', 'Conquerors']
+};
+const ALL_SECTIONS = SECTIONS['11'].concat(SECTIONS['12']);
+
+/* ---------- small helpers ---------- */
+const sha = function (s) { return crypto.createHash('sha256').update(String(s)).digest(); };
+const same = function (a, b) { return crypto.timingSafeEqual(sha(a), sha(b)); };
+const str = function (v, n) { return typeof v === 'string' ? v.trim().slice(0, n) : ''; };
+function sign(p) { const b = Buffer.from(JSON.stringify(p)).toString('base64url'); return b + '.' + crypto.createHmac('sha256', cfg.secret).update(b).digest('base64url'); }
+function verify(t) {
+  if (typeof t !== 'string') return null; const parts = t.split('.'); if (parts.length !== 2) return null;
+  const e = crypto.createHmac('sha256', cfg.secret).update(parts[0]).digest('base64url');
+  if (parts[1].length !== e.length || !crypto.timingSafeEqual(Buffer.from(parts[1]), Buffer.from(e))) return null;
+  try { const p = JSON.parse(Buffer.from(parts[0], 'base64url').toString()); return p.exp &gt; Date.now() ? p : null; } catch (e) { return null; }
+}
+const issue = function (p) { p.exp = Date.now() + TOKEN_HOURS * 3600e3; return sign(p); };
+function hashPw(pw, saltHex) { return crypto.pbkdf2Sync(String(pw), Buffer.from(saltHex, 'hex'), 60000, 32, 'sha256').toString('hex'); }
+const adminHash = function (pw, saltHex) { return crypto.scryptSync(String(pw), Buffer.from(saltHex, 'hex'), 64).toString('hex'); };
+function adminOk(username, pw) {
+  const a = cfg.admin; if (!a) return false;
+  const u = same(String(username || ''), a.username); /* exact match: case, spaces and symbols all count */
+  const p = same(adminHash(pw || '', a.salt), a.hash);
+  return u &amp;&amp; p;
+}
+function setAdmin(username, pw) {
+  const prevName = cfg.admin &amp;&amp; cfg.admin.displayName;
+  const salt = crypto.randomBytes(16).toString('hex');
+  cfg.admin = { username: username, salt: salt, hash: adminHash(pw, salt), ver: ((cfg.admin &amp;&amp; cfg.admin.ver) || 0) + 1 };
+  if (prevName) cfg.admin.displayName = prevName; /* the editable display name survives a password change */
+  fs.writeFileSync(CFG_FILE, JSON.stringify(cfg, null, 2), { mode: 0o600 });
+}
+function checkNewCreds(username, pw) {
+  if (username.length &lt; 3 || username.length &gt; 40 || !/^[A-Za-z0-9._-]+( [A-Za-z0-9._-]+)*$/.test(username)) return 'Username must be 3-40 characters: letters, numbers, dot, dash, underscore, and single spaces between words.';
+  if (pw.length &lt; 8 || pw.length &gt; 200) return 'Password needs at least 8 characters.';
+  return null;
+}
+const studentId = function (lrn) { return 's-' + crypto.createHmac('sha256', cfg.secret).update('student:' + lrn).digest('hex').slice(0, 16); }; /* the LRN is never used as the public id */
+const adviserOnline = function (section) { return !!presence[section] &amp;&amp; Date.now() - presence[section] &lt; 120000; };
+
+/* brute-force guard: only WRONG passwords count. 8 wrong tries per 10 minutes for the same account from the same address. */
+const fails = {};
+const fkey = function (ip, who) { return ip + '|' + String(who || '').toLowerCase().slice(0, 80); };
+function blocked(ip, who) { const k = fkey(ip, who), now = Date.now(); fails[k] = (fails[k] || []).filter(function (t) { return now - t &lt; 600000; }); return fails[k].length &gt;= 8; }
+function failed(ip, who) { const k = fkey(ip, who); (fails[k] = fails[k] || []).push(Date.now()); }
+function cleared(ip, who) { delete fails[fkey(ip, who)]; }
+setInterval(function () { const now = Date.now(); Object.keys(fails).forEach(function (k) { fails[k] = fails[k].filter(function (t) { return now - t &lt; 600000; }); if (!fails[k].length) delete fails[k]; }); }, 600000).unref();
+const TOO_MANY = { ok: false, error: 'Too many wrong attempts. Please wait a few minutes and try again.' };
+
+/* ---------- who may see which report (same rules as the website) ---------- */
+function canView(s, r) {
+  if (!s) return false;
+  if (s.role === 'student') return r.reporterRole === 'student' &amp;&amp; r.reporterId === s.id;
+  if (s.role === 'admin') return r.approval === 'approved' || r.approval === 'none' || (r.approval === 'rejected' &amp;&amp; r.rejectedBy === 'admin');
+  if (s.role === 'teacher') {
+    if (s.advisory &amp;&amp; r.reporterRole === 'student' &amp;&amp; r.section === s.section) return true;
+    if (r.reporterRole === 'teacher' &amp;&amp; r.reporterId === s.id) return true;
+  }
+  return false;
+}
+function teacherReply(t) { return { ok: true, teacher: { id: t.id, name: t.name, advisory: t.advisory, section: t.section }, token: issue({ role: 'teacher', id: t.id, name: t.name, advisory: t.advisory, section: t.section }) }; }
+const awaitingCount = function () { return db.reports.filter(function (r) { return r.approval === 'pending'; }).length; };
+const visible = function (s) { return s ? db.reports.filter(function (r) { return canView(s, r); }) : []; };
+
+/* ---------- own profile: a person can only ever read or change THEIR OWN account (the account is taken from the login token, never from the request) ---------- */
+function profileOf(s) {
+  if (!s) return null;
+  if (s.role === 'admin') return cfg.admin ? { role: 'admin', id: 'u-admin', name: cfg.admin.displayName || cfg.admin.username, username: cfg.admin.username, custom: !!cfg.admin.displayName } : null;
+  if (s.role === 'teacher') { const t = db.teachers.filter(function (x) { return x.id === s.id; })[0]; return t ? { role: 'teacher', id: t.id, username: t.username, name: t.name, advisory: !!t.advisory, section: t.section || null } : null; }
+  if (s.role === 'student') { const u = db.students.filter(function (x) { return x.id === s.id; })[0]; return u ? { role: 'student', id: u.id, lrn: u.lrn, name: u.name, grade: u.grade, section: u.section, adviser: u.adviser } : null; }
+  return null;
+}
+
+/* ---------- report writes: the server decides what each person is allowed to change ---------- */
+const MUT = ['stage', 'approval', 'approvalBy', 'approvalAt', 'approvalNote', 'rejectedBy', 'delayed', 'delayFixedAt', 'accomplishedAt'];
+function cleanHist(h) {
+  return Array.isArray(h) ? h.slice(0, 200).filter(function (x) { return x &amp;&amp; typeof x === 'object'; }).map(function (x) {
+    return { at: +x.at || Date.now(), by: str(x.by, 120), role: str(x.role, 20), action: str(x.action, 200), detail: str(x.detail, 1000), stage: +x.stage || 0 };
+  }) : [];
+}
+function nextId() {
+  let n = +db.seq || 0; db.reports.forEach(function (r) { const m = /^RP-(\d+)$/.exec(r.id); if (m &amp;&amp; +m[1] &gt; n) n = +m[1]; });
+  n++; db.seq = n; return 'RP-' + (n &lt; 10 ? '0' + n : n);
+}
+function savePhoto(id, dataUrl) { /* a report photo: JPEG only, small, saved as data/photos/RP-xx.jpg */
+  const m = /^data:image\/jpeg;base64,([A-Za-z0-9+\/=]+)$/.exec(typeof dataUrl === 'string' &amp;&amp; dataUrl.length &lt; 600000 ? dataUrl : '');
+  if (!m) return false;
+  const buf = Buffer.from(m[1], 'base64');
+  if (buf.length &lt; 100 || buf[0] !== 0xFF || buf[1] !== 0xD8) return false; /* must really be a JPEG */
+  try { fs.writeFileSync(path.join(PHOTO_DIR, id + '.jpg'), buf); return true; } catch (e) { return false; }
+}
+function createReport(s, r) {
+  if (s.role !== 'student' &amp;&amp; s.role !== 'teacher') return;
+  const n = { title: str(r.title, 200), description: str(r.description, 3000), location: str(r.location, 300), category: str(r.category, 100) };
+  if (!n.title || !n.description) return;
+  if (s.role === 'student') {
+    if (r.reporterRole !== 'student' || r.reporterId !== s.id || !adviserOnline(s.section)) return;
+    Object.assign(n, { reporterId: s.id, reporterName: s.name, reporterRole: 'student', section: s.section, adviserName: s.adviser, stage: 2, approval: 'pending' });
+  } else {
+    if (r.reporterRole !== 'teacher' || r.reporterId !== s.id) return;
+    Object.assign(n, { reporterId: s.id, reporterName: s.name, reporterRole: 'teacher', section: null, adviserName: null, stage: 3, approval: 'none' });
+  }
+  const now = Date.now();
+  n.delayed = false; n.createdAt = +r.createdAt || now; n.updatedAt = now; n.updatedBy = s.name; n.history = cleanHist(r.history);
+  const id = str(r.id, 20);
+  n.id = /^RP-\d+$/.test(id) &amp;&amp; !db.reports.some(function (x) { return x.id === id; }) ? id : nextId();
+  const m = /^RP-(\d+)$/.exec(n.id); if (m &amp;&amp; +m[1] &gt; db.seq) db.seq = +m[1];
+  if (r.photo &amp;&amp; savePhoto(n.id, r.photo)) n.hasPhoto = true;
+  db.reports.push(n);
+}
+function cleanField(k, v, old) {
+  if (k === 'stage') return Number.isInteger(v) &amp;&amp; v &gt;= 1 &amp;&amp; v &lt;= 6 ? v : old;
+  if (k === 'approval') return ['pending', 'approved', 'rejected', 'none'].indexOf(v) &gt; -1 ? v : old;
+  if (k === 'delayed') return !!v;
+  if (k === 'approvalBy') return str(v, 120);
+  if (k === 'approvalNote') return str(v, 1000);
+  if (k === 'rejectedBy') return str(v, 20);
+  return typeof v === 'number' &amp;&amp; isFinite(v) ? v : null; /* approvalAt, delayFixedAt, accomplishedAt */
+}
+function updateReport(s, ex, r) {
+  if (!canView(s, ex)) return;
+  const ih = cleanHist(r.history), eh = ex.history || [];
+  if (ih.length &lt;= eh.length) return; /* every real change adds a history line; anything else is stale or empty */
+  for (let i = 0; i &lt; eh.length; i++) if (JSON.stringify(ih[i]) !== JSON.stringify(eh[i])) return;
+  const diff = MUT.filter(function (k) { return JSON.stringify(r[k]) !== JSON.stringify(ex[k]); });
+  let ok = false;
+  if (s.role === 'admin') ok = true;
+  else if (s.role === 'teacher' &amp;&amp; s.advisory &amp;&amp; ex.reporterRole === 'student' &amp;&amp; ex.section === s.section &amp;&amp; ex.approval === 'pending') {
+    ok = (r.approval === 'approved' || r.approval === 'rejected') &amp;&amp; (r.stage === ex.stage || r.stage === 3) &amp;&amp;
+      diff.every(function (k) { return ['approval', 'approvalBy', 'approvalAt', 'approvalNote', 'stage', 'delayed', 'delayFixedAt'].indexOf(k) &gt; -1; });
+  }
+  if (!ok) return;
+  MUT.forEach(function (k) { if (k in r) ex[k] = cleanField(k, r[k], ex[k]); else delete ex[k]; });
+  ex.history = ih; ex.updatedAt = Date.now(); ex.updatedBy = s.name;
+}
+function applyReports(s, list) {
+  list.slice(0, 500).forEach(function (r) {
+    if (!r || typeof r !== 'object') return;
+    const ex = db.reports.filter(function (x) { return x.id === r.id; })[0];
+    if (ex &amp;&amp; ex.reporterId === r.reporterId &amp;&amp; ex.createdAt === +r.createdAt) updateReport(s, ex, r);
+    else createReport(s, r);
+  });
+  save();
+}
+
+/* ---------- homepage content ---------- */
+function validContent(c) {
+  if (!c || typeof c !== 'object') return null;
+  const out = { seeded: 1 };
+  for (const t of ['grand', 'latest', 'events']) {
+    if (!Array.isArray(c[t]) || c[t].length &gt; 200) return null;
+    out[t] = c[t].map(function (x) {
+      const o = { id: str(x &amp;&amp; x.id, 40) || ('c' + Date.now()), title: str(x &amp;&amp; x.title, 200), text: str(x &amp;&amp; x.text, 1000) };
+      if (x &amp;&amp; typeof x.desc === 'string' &amp;&amp; x.desc.trim()) o.desc = str(x.desc, 2000);
+      if (x &amp;&amp; /^\d{4}-\d{2}-\d{2}$/.test(x.date || '')) o.date = x.date;
+      if (x &amp;&amp; typeof x.img === 'string' &amp;&amp; x.img.length &lt; 700000 &amp;&amp; /^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+\/=]+$/.test(x.img)) o.img = x.img;
+      return o;
+    }).filter(function (o) { return o.title; });
+  }
+  if (c.portal &amp;&amp; typeof c.portal === 'object') out.portal = validPortal(c.portal);
+  return out;
+}
+/* ASHS Portal content (Academic Guide sections, SBMS link, Persons In Charge) edited by the admin */
+function validPortal(p) {
+  const arr = function (a, max) { return Array.isArray(a) ? a.slice(0, max) : []; };
+  const url = str(p.sbms &amp;&amp; p.sbms.url, 500);
+  const out = { sbms: { url: /^https?:\/\/[^\s&lt;&gt;"]+$/i.test(url) ? url : '' } };
+  out.guide = arr(p.guide, 30).filter(function (s) { return s &amp;&amp; typeof s === 'object'; }).map(function (s) {
+    const o = { id: str(s.id, 40) || ('s' + Date.now()), type: s.type === 'buildings' ? 'buildings' : 'steps', title: str(s.title, 100), heading: str(s.heading, 150), intro: str(s.intro, 1000) };
+    if (o.type === 'buildings') {
+      o.search = str(s.search, 100);
+      o.buildings = arr(s.buildings, 20).filter(function (b) { return b &amp;&amp; typeof b === 'object'; }).map(function (b) {
+        return { name: str(b.name, 100), floors: arr(b.floors, 30).filter(function (f) { return f &amp;&amp; typeof f === 'object'; }).map(function (f) {
+          return { label: str(f.label, 60), rooms: arr(f.rooms, 80).filter(function (r) { return r &amp;&amp; typeof r === 'object'; }).map(function (r) { return { tag: str(r.tag, 30), name: str(r.name, 100) }; }).filter(function (r) { return r.name; }) };
+        }) };
+      });
+    } else {
+      o.cards = arr(s.cards, 12).filter(function (c2) { return c2 &amp;&amp; typeof c2 === 'object'; }).map(function (c2) {
+        return { title: str(c2.title, 150), steps: arr(c2.steps, 40).map(function (x) { return str(x, 500); }).filter(Boolean), noteTitle: str(c2.noteTitle, 100), note: str(c2.note, 1000) };
+      });
+      o.foot = str(s.foot, 600);
+    }
+    return o;
+  }).filter(function (s) { return s.title; });
+  const pfile = function (v) { v = str(v, 80); return /^[a-f0-9]{24}\.(png|jpg|pdf)$/.test(v) ? v : ''; };
+  out.persons = arr(p.persons, 150).filter(function (x) { return x &amp;&amp; typeof x === 'object'; }).map(function (x) {
+    const lv = Math.round(+x.level);
+    const o = { id: str(x.id, 40) || ('p' + Date.now()), name: str(x.name, 100), role: str(x.role, 150), level: lv &gt;= 1 &amp;&amp; lv &lt;= 6 ? lv : 1 };
+    if (typeof x.parent === 'string') o.parent = str(x.parent, 40); /* id of the person this one reports to ('' = top of the chart) */
+    if (typeof x.dept === 'string' &amp;&amp; x.dept.trim()) o.dept = str(x.dept, 100);
+    const ph = pfile(x.photo); if (ph &amp;&amp; /\.jpg$/.test(ph)) o.photo = ph;
+    return o;
+  }).filter(function (x) { return x.name; });
+  const ids = {}; out.persons.forEach(function (x) { ids[x.id] = x; });
+  out.persons.forEach(function (x) { if (x.parent !== undefined &amp;&amp; (x.parent === x.id || !ids[x.parent])) x.parent = ''; }); /* a parent must exist and cannot be the person themself */
+  out.persons.forEach(function (x) { let c = x, n = 0; while (c.parent &amp;&amp; n++ &lt; 500) { if (c.parent === x.id) { x.parent = ''; break; } c = ids[c.parent]; } }); /* no loops: nobody may report to their own subordinate */
+  /* organizational chart settings: which version the public page shows + the uploaded chart file. Switching never deletes either one. */
+  const org = p.org &amp;&amp; typeof p.org === 'object' ? p.org : {};
+  const uf = pfile(org.file);
+  out.org = { mode: org.mode === 'upload' &amp;&amp; uf ? 'upload' : 'manual' };
+  if (uf) out.org.file = uf; if (uf) out.org.kind = /\.pdf$/.test(uf) ? 'pdf' : 'image'; if (uf &amp;&amp; str(org.name, 120)) out.org.name = str(org.name, 120);
+  return out;
+}
+
+
+/* ---------- admin account page (served by the server itself, no extra file needed) ---------- */
+const ADMIN_PAGE = [
+'&lt;!DOCTYPE html&gt;&lt;html lang="en"&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;meta name="viewport" content="width=device-width, initial-scale=1"&gt;&lt;title&gt;FIXIT Admin Account&lt;/title&gt;',
+'&lt;style&gt;body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#1e1b4b;font-family:system-ui,Segoe UI,sans-serif;color:#0f172a}',
+'.c{background:#fff;border-radius:16px;padding:24px;width:min(92vw,400px);box-shadow:0 10px 40px #0006}h1{margin:0 0 4px;font-size:20px}p{margin:0 0 16px;color:#475569;font-size:14px}',
+'label{display:block;font-size:13px;font-weight:600;margin:12px 0 4px}input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:15px}',
+'button{margin-top:18px;width:100%;padding:11px;border:0;border-radius:10px;background:#f97316;color:#fff;font-size:15px;font-weight:700;cursor:pointer}',
+'#msg{margin-top:12px;font-size:14px;min-height:18px}.err{color:#b91c1c}.ok{color:#15803d}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div class="c" id="app"&gt;Loading...&lt;/div&gt;',
+'&lt;script&gt;',
+'var app=document.getElementById("app");',
+'function field(id,label,type){return "&lt;label for=\\""+id+"\\"&gt;"+label+"&lt;/label&gt;&lt;input id=\\""+id+"\\" type=\\""+(type||"text")+"\\" autocomplete=\\"off\\"&gt;";}',
+'function v(id){return document.getElementById(id).value;}',
+'function say(t,good){var m=document.getElementById("msg");m.className=good?"ok":"err";m.textContent=t;}',
+'function post(url,data){return fetch(url,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)}).then(function(r){return r.json();});}',
+'function setup(){app.innerHTML="&lt;h1&gt;Create admin account&lt;/h1&gt;&lt;p&gt;Choose your username and password. &lt;b&gt;The username is permanent and cannot be changed later&lt;/b&gt;; it must be typed exactly (capital letters, numbers and symbols all count).&lt;/p&gt;"+field("code","Setup code")+field("u","Admin username (permanent)")+field("p","New password (min. 8 characters)","password")+field("p2","Repeat password","password")+"&lt;button id=\\"go\\"&gt;Create account&lt;/button&gt;&lt;div id=\\"msg\\"&gt;&lt;/div&gt;";',
+' document.getElementById("go").onclick=function(){if(v("p")!==v("p2"))return say("Passwords do not match.");post("/api/admin/setup",{code:v("code"),username:v("u"),password:v("p")}).then(function(r){if(r.ok){app.innerHTML="&lt;h1&gt;Done!&lt;/h1&gt;&lt;p&gt;Your admin account is ready. You can now log in on the FIXIT website.&lt;/p&gt;";}else say(r.error||"Something went wrong.");});};}',
+'function change(){app.innerHTML="&lt;h1&gt;Change admin password&lt;/h1&gt;&lt;p&gt;Enter your username and current password, then choose a new password. The username itself cannot be changed.&lt;/p&gt;"+field("cu","Username")+field("cp","Current password","password")+field("np","New password (min. 8 characters)","password")+field("np2","Repeat new password","password")+"&lt;button id=\\"go\\"&gt;Save new password&lt;/button&gt;&lt;div id=\\"msg\\"&gt;&lt;/div&gt;";',
+' document.getElementById("go").onclick=function(){if(v("np")!==v("np2"))return say("New passwords do not match.");post("/api/admin/account",{username:v("cu"),currentPassword:v("cp"),newPassword:v("np")}).then(function(r){if(r.ok){app.innerHTML="&lt;h1&gt;Saved&lt;/h1&gt;&lt;p&gt;Your admin password was updated. Please log in again on the FIXIT website.&lt;/p&gt;";}else say(r.error||"Something went wrong.");});};}',
+'fetch("/api/admin/status").then(function(r){return r.json();}).then(function(r){if(r.setupNeeded)setup();else change();}).catch(function(){app.textContent="Cannot reach the server.";});',
+'&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;'
+].join('\n');
+
+/* ---------- HTTP ---------- */
+const TYPES = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.svg': 'image/svg+xml', '.ico': 'image/x-icon', '.webp': 'image/webp', '.txt': 'text/plain; charset=utf-8' };
+function send(res, code, obj) { const b = JSON.stringify(obj); res.writeHead(code, { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store' }); res.end(b); }
+function body(req, limit) {
+  return new Promise(function (ok, bad) {
+    let n = 0; const chunks = [];
+    req.on('data', function (c) { n += c.length; if (n &gt; limit) { bad(new Error('too big')); req.destroy(); } else chunks.push(c); });
+    req.on('end', function () { try { ok(JSON.parse(Buffer.concat(chunks).toString() || '{}')); } catch (e) { bad(new Error('bad json')); } });
+    req.on('error', bad);
+  });
+}
+const clientIp = function (req) { return (TRUST_PROXY &amp;&amp; String(req.headers['x-forwarded-for'] || '').split(',')[0].trim()) || req.socket.remoteAddress || 'x'; };
+
+async function api(req, res, url) {
+  const route = req.method + ' ' + url.pathname;
+  let s = verify((req.headers.authorization || '').replace(/^Bearer\s+/i, ''));
+  if (s &amp;&amp; s.role === 'admin' &amp;&amp; (!cfg.admin || s.ver !== cfg.admin.ver)) s = null; /* old admin sessions stop working after a reset or credential change */
+  if (s &amp;&amp; s.role === 'teacher') { /* sessions from the old no-account teacher login stop working; otherwise use the saved record, so a profile edit applies at once */
+    const tRec = db.teachers.filter(function (x) { return x.id === s.id; })[0];
+    if (!tRec) s = null; else { s.name = tRec.name; s.advisory = tRec.advisory; s.section = tRec.section; }
+  }
+  if (s &amp;&amp; s.role === 'student') { const sRec = db.students.filter(function (x) { return x.id === s.id; })[0]; if (sRec) { s.name = sRec.name; s.section = sRec.section; s.adviser = sRec.adviser; } }
+  if (s &amp;&amp; s.role === 'admin' &amp;&amp; cfg.admin) s.name = cfg.admin.displayName || cfg.admin.username;
+  const ip = clientIp(req);
+  if (req.method === 'GET' &amp;&amp; url.pathname.indexOf('/api/photo/') === 0) { /* a report photo: only people who may see that report may see its photo */
+    if (!s) return send(res, 401, { ok: false, error: 'Please log in again.' });
+    let pid = ''; try { pid = decodeURIComponent(url.pathname.slice('/api/photo/'.length)); } catch (e) {}
+    const rep = /^RP-\d+$/.test(pid) ? db.reports.filter(function (x) { return x.id === pid; })[0] : null;
+    if (!rep || !rep.hasPhoto || !canView(s, rep)) return send(res, 404, { ok: false, error: 'Not found.' });
+    return fs.readFile(path.join(PHOTO_DIR, pid + '.jpg'), function (e, buf) {
+      if (e) return send(res, 404, { ok: false, error: 'Not found.' });
+      res.writeHead(200, { 'Content-Type': 'image/jpeg', 'Cache-Control': 'private, max-age=3600', 'X-Content-Type-Options': 'nosniff' });
+      res.end(buf);
+    });
+  }
+  if (route === 'GET /api/state') {
+    const p = {}; Object.keys(presence).forEach(function (k) { const age = Date.now() - presence[k]; if (age &lt; 120000) p[k] = age; });
+    const rev = +db.contentRev || 0, out = { ok: true, serverTime: Date.now(), contentRev: rev, presence: p };
+    if (url.searchParams.get('rev') !== String(rev)) out.content = db.content; /* the content (it can hold photos) is sent only when it changed */
+    if (s &amp;&amp; s.role === 'admin') out.awaiting = awaitingCount(); /* only the NUMBER of reports still waiting for an adviser; the admin never sees those reports */
+    if (s) { out.auth = true; out.reports = visible(s); out.profile = profileOf(s); } else if ((req.headers.authorization || '').length) out.auth = false;
+    return send(res, 200, out);
+  }
+  if (route === 'POST /api/login/admin' || route === 'POST /api/login/student' || route === 'POST /api/register/student' || route === 'POST /api/login/teacher' || route === 'POST /api/register/teacher') {
+    const b = await body(req, 20000);
+    if (route === 'POST /api/login/admin') {
+      if (blocked(ip, 'admin')) return send(res, 429, TOO_MANY);
+      if (!cfg.admin) return send(res, 200, { ok: false, setup: true, error: 'The admin account is not set up yet. Open /admin-account to create it.' });
+      if (!adminOk(b.username, b.password)) { failed(ip, 'admin'); return send(res, 200, { ok: false, error: 'Wrong username or password.' }); }
+      cleared(ip, 'admin');
+      return send(res, 200, { ok: true, token: issue({ role: 'admin', id: 'u-admin', name: cfg.admin.username, ver: cfg.admin.ver }) });
+    }
+    if (route === 'POST /api/login/teacher') {
+      const uname = str(b.username, 40).toLowerCase(), who = 'teacher:' + uname;
+      if (blocked(ip, who)) return send(res, 429, TOO_MANY);
+      const t = db.teachers.filter(function (x) { return x.username === uname; })[0];
+      const okPw = same(hashPw(b.password || '', t ? t.salt : '00'), t ? t.hash : '-'); /* same work whether or not the username exists */
+      if (!t || !okPw) { failed(ip, who); return send(res, 200, { ok: false, error: 'Wrong username or password.' }); }
+      cleared(ip, who);
+      if (t.advisory) presence[t.section] = Date.now();
+      return send(res, 200, teacherReply(t));
+    }
+    if (route === 'POST /api/register/teacher') {
+      /* teachers create their OWN account; the admin does nothing. Two types: with an advising class, or without one. */
+      if (blocked(ip, 'teacher-code')) return send(res, 429, TOO_MANY);
+      if (!same(String(b.code || '').trim().toLowerCase(), String(cfg.teacherCode).toLowerCase())) { failed(ip, 'teacher-code'); return send(res, 200, { ok: false, error: 'Wrong teacher code. Ask the school admin for it.' }); }
+      const name = str(b.name, 100), uname = str(b.username, 40), pw = String(b.password || '');
+      const advisory = b.type === 'advising', section = advisory ? str(b.section, 40) : null;
+      if (b.type !== 'advising' &amp;&amp; b.type !== 'none') return send(res, 200, { ok: false, error: 'Please choose if you have an advising class or not.' });
+      if (!name) return send(res, 200, { ok: false, error: 'Please enter your name.' });
+      if (advisory &amp;&amp; ALL_SECTIONS.indexOf(section) &lt; 0) return send(res, 200, { ok: false, error: 'Please choose the section you advise.' });
+      const bad = checkNewCreds(uname, pw); if (bad) return send(res, 200, { ok: false, error: bad });
+      if (db.teachers.some(function (x) { return x.username === uname.toLowerCase(); })) return send(res, 200, { ok: false, error: 'That username is already taken. Please choose another.' });
+      if (advisory &amp;&amp; db.teachers.some(function (x) { return x.advisory &amp;&amp; x.section === section; })) return send(res, 200, { ok: false, error: section + ' already has an adviser account. If this is a mistake, please tell the admin.' });
+      cleared(ip, 'teacher-code');
+      const salt = crypto.randomBytes(16).toString('hex');
+      const t = { id: 'teacher:' + uname.toLowerCase(), username: uname.toLowerCase(), name: name, advisory: advisory, section: section, salt: salt, hash: hashPw(pw, salt), createdAt: Date.now() };
+      db.teachers.push(t); save(); /* sign-up only creates the account; the teacher logs in afterwards */
+      console.log('  Saved new teacher account: ' + t.name + (advisory ? '  (adviser of ' + section + ')' : '  (no advising class)') + '  (total teachers: ' + db.teachers.length + ')');
+      return send(res, 200, { ok: true, created: true });
+    }
+    if (route === 'POST /api/login/student') {
+      const lrn = String(b.lrn || '').replace(/\s/g, ''), u = db.students.filter(function (x) { return x.lrn === lrn; })[0];
+      if (blocked(ip, 'lrn:' + lrn)) return send(res, 429, TOO_MANY);
+      if (!u || !same(hashPw(b.password || '', u.salt), u.hash)) { failed(ip, 'lrn:' + lrn); return send(res, 200, { ok: false, error: 'Wrong LRN or password.' }); }
+      cleared(ip, 'lrn:' + lrn);
+      const pub = { id: u.id, lrn: u.lrn, name: u.name, grade: u.grade, section: u.section, adviser: u.adviser };
+      return send(res, 200, { ok: true, student: pub, token: issue({ role: 'student', id: u.id, name: u.name, section: u.section, adviser: u.adviser }) });
+    }
+    /* register student */
+    const lrn = String(b.lrn || '').replace(/\s/g, ''), name = str(b.name, 100), adviser = str(b.adviser, 100), grade = String(b.grade || ''), section = str(b.section, 40), pw = String(b.password || '');
+    if (!/^\d{12}$/.test(lrn)) return send(res, 200, { ok: false, error: 'Enter your 12-digit LRN (Learner Reference Number).' });
+    if (!name) return send(res, 200, { ok: false, error: 'Please enter your name.' });
+    if (!SECTIONS[grade] || SECTIONS[grade].indexOf(section) &lt; 0) return send(res, 200, { ok: false, error: 'Please choose your grade level and section.' });
+    if (!adviser) return send(res, 200, { ok: false, error: "Please enter your adviser's name." });
+    if (pw.length &lt; 6 || pw.length &gt; 200) return send(res, 200, { ok: false, error: 'Your password needs at least 6 characters.' });
+    if (db.students.some(function (x) { return x.lrn === lrn; })) return send(res, 200, { ok: false, error: 'That LRN already has an account. Please log in instead.' });
+    const salt = crypto.randomBytes(16).toString('hex');
+    const st = { id: studentId(lrn), lrn: lrn, name: name, grade: grade, section: section, adviser: adviser, salt: salt, hash: hashPw(pw, salt), createdAt: Date.now() };
+    db.students.push(st); save();
+    console.log('  Saved new student account: ' + st.name + '  (total accounts: ' + db.students.length + ')');
+    return send(res, 200, { ok: true, created: true }); /* sign-up only creates the account; the student logs in afterwards */
+  }
+  if (route === 'POST /api/admin/teacher-code') { /* the admin chooses the code teachers must type when creating their account */
+    if (!s || s.role !== 'admin') return send(res, 403, { ok: false, error: 'Admins only.' });
+    const b = await body(req, 2000), c = str(b.code, 60);
+    if (c.length &lt; 6 || c.length &gt; 40 || !/^[A-Za-z0-9._-]+$/.test(c)) return send(res, 200, { ok: false, error: 'The code needs 6-40 characters: letters, numbers, dot, dash or underscore (no spaces).' });
+    cfg.teacherCode = c; fs.writeFileSync(CFG_FILE, JSON.stringify(cfg, null, 2), { mode: 0o600 }); writeTeacherCodeFile();
+    console.log('  Teacher code changed by the admin.');
+    return send(res, 200, { ok: true, code: c });
+  }
+  if (route === 'GET /api/admin/teacher-code') { /* only the logged-in admin can read the teacher code */
+    if (!s || s.role !== 'admin') return send(res, 403, { ok: false, error: 'Admins only.' });
+    return send(res, 200, { ok: true, code: cfg.teacherCode });
+  }
+  if (route === 'GET /api/admin/status') return send(res, 200, { ok: true, setupNeeded: !cfg.admin });
+  if (route === 'POST /api/admin/setup') {
+    const b = await body(req, 5000);
+    if (cfg.admin) return send(res, 200, { ok: false, error: 'The admin account already exists.' });
+    if (blocked(ip, 'setup')) return send(res, 429, TOO_MANY);
+    if (!SETUP_CODE || !same(String(b.code || '').trim().toLowerCase(), SETUP_CODE)) { failed(ip, 'setup'); return send(res, 200, { ok: false, error: 'Wrong setup code.' }); }
+    const u = str(b.username, 40), pw = String(b.password || ''), bad = checkNewCreds(u, pw);
+    if (bad) return send(res, 200, { ok: false, error: bad });
+    setAdmin(u, pw); SETUP_CODE = null; syncCodeFile(); cleared(ip, 'setup');
+    console.log('  Admin account created: ' + u);
+    return send(res, 200, { ok: true });
+  }
+  if (route === 'POST /api/admin/account') {
+    const b = await body(req, 5000);
+    if (!cfg.admin) return send(res, 200, { ok: false, error: 'The admin account is not set up yet.' });
+    if (blocked(ip, 'admin')) return send(res, 429, TOO_MANY);
+    if (!adminOk(b.username, b.currentPassword)) { failed(ip, 'admin'); return send(res, 200, { ok: false, error: 'Wrong current username or password.' }); }
+    cleared(ip, 'admin');
+    const pw = String(b.newPassword || ''), bad = checkNewCreds(cfg.admin.username, pw); /* the username is permanent; only the password can change */
+    if (bad) return send(res, 200, { ok: false, error: bad });
+    setAdmin(cfg.admin.username, pw);
+    console.log('  Admin password changed.');
+    return send(res, 200, { ok: true });
+  }
+  if (route === 'POST /api/presence') {
+    if (!s || s.role !== 'teacher' || !s.advisory) return send(res, 403, { ok: false, error: 'Advisers only.' });
+    const b = await body(req, 2000);
+    if (b.on) presence[s.section] = Date.now(); else delete presence[s.section];
+    return send(res, 200, { ok: true });
+  }
+  if (route === 'GET /api/account') {
+    if (!s) return send(res, 401, { ok: false, error: 'Please log in again.' });
+    const pf = profileOf(s); if (!pf) return send(res, 404, { ok: false, error: 'Account not found.' });
+    return send(res, 200, { ok: true, profile: pf });
+  }
+  if (route === 'PUT /api/account') { /* edit MY OWN profile (name and the other account details; a new password needs the current one) */
+    if (!s) return send(res, 401, { ok: false, error: 'Please log in again.' });
+    const b = await body(req, 5000), name = str(b.name, s.role === 'admin' ? 60 : 100);
+    if (!name) return send(res, 200, { ok: false, error: 'Please enter your name.' });
+    const rec = s.role === 'teacher' ? db.teachers.filter(function (x) { return x.id === s.id; })[0] : s.role === 'student' ? db.students.filter(function (x) { return x.id === s.id; })[0] : null;
+    if (s.role !== 'admin' &amp;&amp; !rec) return send(res, 404, { ok: false, error: 'Account not found.' });
+    /* 1. check everything first, so nothing is half-saved */
+    const newPw = String(b.newPassword || ''), wantPw = newPw.length &gt; 0, who = 'acct:' + s.id;
+    if (wantPw) {
+      if (blocked(ip, who)) return send(res, 429, TOO_MANY);
+      const cur = String(b.currentPassword || '');
+      const okCur = s.role === 'admin' ? adminOk(cfg.admin.username, cur) : same(hashPw(cur, rec.salt), rec.hash);
+      if (!okCur) { failed(ip, who); return send(res, 200, { ok: false, error: 'Your current password is wrong.' }); }
+      cleared(ip, who);
+      const minPw = s.role === 'student' ? 6 : 8;
+      if (newPw.length &lt; minPw || newPw.length &gt; 200) return send(res, 200, { ok: false, error: 'Your new password needs at least ' + minPw + ' characters.' });
+    }
+    let grade, section, adviser, advisory;
+    if (s.role === 'student') {
+      grade = String(b.grade || ''); section = str(b.section, 40); adviser = str(b.adviser, 100);
+      if (!SECTIONS[grade] || SECTIONS[grade].indexOf(section) &lt; 0) return send(res, 200, { ok: false, error: 'Please choose your grade level and section.' });
+      if (!adviser) return send(res, 200, { ok: false, error: "Please enter your adviser's name." });
+    } else if (s.role === 'teacher') {
+      if (b.type !== 'advising' &amp;&amp; b.type !== 'none') return send(res, 200, { ok: false, error: 'Please choose if you have an advising class or not.' });
+      advisory = b.type === 'advising'; section = advisory ? str(b.section, 40) : null;
+      if (advisory &amp;&amp; ALL_SECTIONS.indexOf(section) &lt; 0) return send(res, 200, { ok: false, error: 'Please choose the section you advise.' });
+      if (advisory &amp;&amp; db.teachers.some(function (x) { return x.id !== rec.id &amp;&amp; x.advisory &amp;&amp; x.section === section; })) return send(res, 200, { ok: false, error: section + ' already has an adviser account. If this is a mistake, please tell the admin.' });
+    }
+    /* 2. save */
+    let token;
+    if (s.role === 'student') {
+      Object.assign(rec, { name: name, grade: grade, section: section, adviser: adviser });
+      if (wantPw) { rec.salt = crypto.randomBytes(16).toString('hex'); rec.hash = hashPw(newPw, rec.salt); }
+      token = issue({ role: 'student', id: rec.id, name: rec.name, section: rec.section, adviser: rec.adviser });
+    } else if (s.role === 'teacher') {
+      if (rec.advisory &amp;&amp; (!advisory || rec.section !== section)) delete presence[rec.section]; /* the old section no longer has this adviser online */
+      Object.assign(rec, { name: name, advisory: advisory, section: section });
+      if (advisory) presence[section] = Date.now();
+      if (wantPw) { rec.salt = crypto.randomBytes(16).toString('hex'); rec.hash = hashPw(newPw, rec.salt); }
+      token = teacherReply(rec).token;
+    } else { /* admin: the username is permanent; the display name and the password can change */
+      cfg.admin.displayName = name;
+      if (wantPw) setAdmin(cfg.admin.username, newPw); else fs.writeFileSync(CFG_FILE, JSON.stringify(cfg, null, 2), { mode: 0o600 });
+      token = issue({ role: 'admin', id: 'u-admin', name: name, ver: cfg.admin.ver });
+    }
+    save();
+    console.log('  Profile updated by its owner (' + s.role + '): ' + name + (wantPw ? '  (password changed)' : ''));
+    return send(res, 200, { ok: true, profile: profileOf(Object.assign({}, s, { name: name })), token: token });
+  }
+  if (route === 'PUT /api/reports') {
+    if (!s) return send(res, 401, { ok: false, error: 'Please log in again.' });
+    const b = await body(req, 3e6); if (!Array.isArray(b.reports)) return send(res, 400, { ok: false, error: 'Bad request.' });
+    applyReports(s, b.reports);
+    return send(res, 200, { ok: true, reports: visible(s), awaiting: s.role === 'admin' ? awaitingCount() : undefined });
+  }
+  if (req.method === 'GET' &amp;&amp; url.pathname.indexOf('/api/portal-file/') === 0) { /* public: the uploaded chart and the persons' photos are shown on the public page */
+    let fn = ''; try { fn = decodeURIComponent(url.pathname.slice('/api/portal-file/'.length)); } catch (e) {}
+    const m = /^[a-f0-9]{24}\.(png|jpg|pdf)$/.exec(fn);
+    if (!m) return send(res, 404, { ok: false, error: 'Not found.' });
+    return fs.readFile(path.join(PORTAL_DIR, fn), function (e, buf) {
+      if (e) return send(res, 404, { ok: false, error: 'Not found.' });
+      const ct = m[1] === 'pdf' ? 'application/pdf' : m[1] === 'png' ? 'image/png' : 'image/jpeg';
+      const hd = { 'Content-Type': ct, 'Content-Disposition': 'inline', 'Cache-Control': 'public, max-age=31536000, immutable', 'X-Content-Type-Options': 'nosniff' };
+      if (m[1] !== 'pdf') hd['Content-Security-Policy'] = "default-src 'none'; img-src 'self' data:; style-src 'unsafe-inline'";
+      res.writeHead(200, hd);
+      res.end(buf);
+    });
+  }
+  if (route === 'POST /api/admin/portal-file') { /* admin uploads one file: kind 'chart' (PNG/JPG/PDF, max 8 MB) or 'photo' (JPEG, small) */
+    if (!s || s.role !== 'admin') return send(res, 403, { ok: false, error: 'Admins only.' });
+    const b = await body(req, 12e6), kind = b.kind === 'photo' ? 'photo' : 'chart';
+    const mm = /^data:([a-z\/+.-]+);base64,([A-Za-z0-9+\/=]+)$/.exec(typeof b.data === 'string' &amp;&amp; b.data.length &lt; 11.5e6 ? b.data : '');
+    if (!mm) return send(res, 200, { ok: false, error: 'That file could not be read. Please choose a PNG, JPG or PDF file.' });
+    const buf = Buffer.from(mm[2], 'base64'); let ext = '';
+    if (buf.length &gt; 12 &amp;&amp; buf[0] === 0x89 &amp;&amp; buf[1] === 0x50 &amp;&amp; buf[2] === 0x4E &amp;&amp; buf[3] === 0x47) ext = 'png';
+    else if (buf.length &gt; 4 &amp;&amp; buf[0] === 0xFF &amp;&amp; buf[1] === 0xD8 &amp;&amp; buf[2] === 0xFF) ext = 'jpg';
+    else if (buf.length &gt; 8 &amp;&amp; buf.slice(0, 5).toString('latin1') === '%PDF-') ext = 'pdf';
+    if (!ext) return send(res, 200, { ok: false, error: 'This is not a real PNG, JPG or PDF file.' });
+    if (kind === 'photo' &amp;&amp; ext !== 'jpg') return send(res, 200, { ok: false, error: 'Photos must be JPG images.' });
+    if (kind === 'photo' &amp;&amp; buf.length &gt; 600000) return send(res, 200, { ok: false, error: 'That photo is too large.' });
+    if (kind === 'chart' &amp;&amp; buf.length &gt; 8e6) return send(res, 200, { ok: false, error: 'The chart file is too large (maximum 8 MB).' });
+    const fn = crypto.randomBytes(12).toString('hex') + '.' + ext;
+    try { fs.writeFileSync(path.join(PORTAL_DIR, fn), buf); } catch (e) { return send(res, 200, { ok: false, error: 'The server could not save the file.' }); }
+    return send(res, 200, { ok: true, file: fn, kind: ext === 'pdf' ? 'pdf' : 'image' });
+  }
+  if (route === 'POST /api/admin/portal-file-delete') { /* admin removes files that are no longer used (only files that really are unused are deleted) */
+    if (!s || s.role !== 'admin') return send(res, 403, { ok: false, error: 'Admins only.' });
+    const b = await body(req, 20000), used = {}, pt = db.content &amp;&amp; db.content.portal;
+    if (pt) { if (pt.org &amp;&amp; pt.org.file) used[pt.org.file] = 1; (pt.persons || []).forEach(function (x) { if (x.photo) used[x.photo] = 1; }); }
+    let n = 0; (Array.isArray(b.files) ? b.files.slice(0, 50) : []).forEach(function (f) {
+      if (typeof f === 'string' &amp;&amp; /^[a-f0-9]{24}\.(png|jpg|pdf)$/.test(f) &amp;&amp; !used[f]) { try { fs.unlinkSync(path.join(PORTAL_DIR, f)); n++; } catch (e) {} }
+    });
+    return send(res, 200, { ok: true, deleted: n });
+  }
+  if (route === 'PUT /api/content') {
+    if (!s || s.role !== 'admin') return send(res, 403, { ok: false, error: 'Admins only.' });
+    const b = await body(req, 9e6), c = validContent(b.content);
+    if (!c) return send(res, 400, { ok: false, error: 'Bad content.' });
+    db.content = c; db.contentRev = (+db.contentRev || 0) + 1; save();
+    return send(res, 200, { ok: true, rev: db.contentRev, content: c });
+  }
+  return send(res, 404, { ok: false, error: 'Not found.' });
+}
+
+function serveStatic(req, res, url) {
+  let p = decodeURIComponent(url.pathname); if (p.endsWith('/')) p += 'index.html';
+  const f = path.normalize(path.join(PUB, p));
+  if (f !== PUB &amp;&amp; !f.startsWith(PUB + path.sep)) { res.writeHead(403); return res.end('Forbidden'); }
+  fs.stat(f, function (e, st) {
+    if (e || !st.isFile()) { res.writeHead(404, { 'Content-Type': 'text/plain' }); return res.end('Not found'); }
+    const ext = path.extname(f).toLowerCase();
+    res.writeHead(200, { 'Content-Type': TYPES[ext] || 'application/octet-stream', 'Cache-Control': 'no-cache', 'X-Content-Type-Options': 'nosniff' });
+    if (req.method === 'HEAD') return res.end();
+    fs.createReadStream(f).pipe(res);
+  });
+}
+
+http.createServer(function (req, res) {
+  let url; try { url = new URL(req.url, 'http://x'); } catch (e) { res.writeHead(400); return res.end(); }
+  if (url.pathname.startsWith('/api/')) {
+    if (!(req.method === 'GET' &amp;&amp; url.pathname === '/api/state')) res.on('finish', function () { console.log(new Date().toLocaleTimeString() + '  ' + req.method + ' ' + url.pathname + '  -&gt;  ' + res.statusCode); });
+    api(req, res, url).catch(function (e) { if (!res.headersSent) send(res, e &amp;&amp; e.message === 'too big' ? 413 : 400, { ok: false, error: 'Bad request.' }); });
+  } else if (req.method === 'GET' &amp;&amp; url.pathname === '/admin-account') {
+    res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store', 'X-Content-Type-Options': 'nosniff' });
+    res.end(ADMIN_PAGE);
+  } else if (req.method === 'GET' || req.method === 'HEAD') serveStatic(req, res, url);
+  else { res.writeHead(405); res.end(); }
+}).listen(PORT, function () {
+  console.log('FIXIT is running at http://localhost:' + PORT);
+  console.log('Website files folder : ' + PUB + (fs.existsSync(path.join(PUB, 'index.html')) ? '' : '   &lt;-- index.html NOT FOUND here'));
+  console.log('\n  Teacher code (give it to your teachers once, so they can create their own accounts): ' + cfg.teacherCode + '   (also saved in ' + path.join(DATA, 'TEACHER-CODE.txt') + ')');
+  if (SETUP_CODE) console.log('\n  No admin account yet. Setup code: ' + SETUP_CODE + '   (also saved in ' + CODE_FILE + ')\n  On the website: Profile &gt; Admin, enter this code and choose the admin username and password.\n');
+  console.log('Data is saved in     : ' + DATA + '   (student accounts: ' + db.students.length + ', teacher accounts: ' + db.teachers.length + ')');
+});
+</pre>
+<script>
+(function(){
+var btn=document.getElementById('copy'),dl=document.getElementById('dl'),el=document.getElementById('code'),dlText=dl.textContent;
+function flash(b,t,o){b.textContent=t;setTimeout(function(){b.textContent=o},1800)}
+function fallback(){
+ try{var r=document.createRange();r.selectNodeContents(el);var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+ var ok=document.execCommand('copy');s.removeAllRanges();flash(btn,ok?'Copied \u2713':'Select and copy manually','Copy code')}catch(e){flash(btn,'Select and copy manually','Copy code')}
+}
+btn.addEventListener('click',function(){
+ var text=el.textContent;
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(function(){flash(btn,'Copied \u2713','Copy code')},fallback)
+ }else fallback();
+});
+dl.addEventListener('click',function(){
+ try{
+  var blob=new Blob([el.textContent],{type:el.getAttribute('data-mime')+';charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=el.getAttribute('data-name');
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href)},4000);flash(dl,'Downloaded \u2713',dlText)
+ }catch(e){flash(dl,'Use Copy code instead',dlText)}
+});
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>FIXIT - index.html (source code)</title>
+<style>
+*{box-sizing:border-box}
+html,body{margin:0;background:#0d1626;color:#f1f5f9}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.bar{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:calc(18px + env(safe-area-inset-top,0px)) 24px 18px;background:#16233a;border-bottom:1px solid #22314d}
+.bar b{font-size:20px;color:#fff;white-space:nowrap}
+.bar span{flex:1 1 260px;min-width:200px;font-size:14px;line-height:1.4;color:#93a4bf}
+.btns{display:flex;gap:16px;flex-wrap:wrap}
+button{font:inherit;font-size:16px;font-weight:600;padding:12px 24px;border:0;border-radius:12px;background:#fcc419;color:#1a1a1a;cursor:pointer;white-space:nowrap}
+button:active{transform:translateY(1px)}
+pre{margin:0;padding:26px 24px calc(40px + env(safe-area-inset-bottom,0px));font:600 15px/1.55 ui-monospace,SFMono-Regular,Menlo,Consolas,"Courier New",monospace;color:#f1f5f9;tab-size:2;white-space:pre;overflow-x:auto}
+@media(max-width:560px){.bar{padding-left:14px;padding-right:14px}.btns{width:100%}.btns button{flex:1}pre{font-size:13px;padding-left:14px;padding-right:14px}}
+</style>
+</head>
+<body>
+<div class="bar">
+<b>index.html</b>
+<span>This page shows the code. Tap Download to save the real file as index.html (Put it in fixit-server/public), or copy the code.</span>
+<div class="btns"><button type="button" id="copy">Copy code</button><button type="button" id="dl">Download index.html</button></div>
+</div>
+<pre id="code" data-name="index.html" data-mime="text/html">&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;
+&lt;head&gt;
+&lt;meta charset="utf-8"&gt;
+&lt;meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"&gt;
+&lt;title&gt;FIXIT – Facility Issue Express and Inspection Tracker&lt;/title&gt;
+&lt;link rel="preconnect" href="https://fonts.googleapis.com"&gt;&lt;link rel="preconnect" href="https://fonts.gstatic.com" crossorigin&gt;&lt;link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&amp;display=swap" rel="stylesheet"&gt;
+&lt;link rel="stylesheet" href="style.css"&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;svg width="0" height="0" style="position:absolute" aria-hidden="true"&gt;
+  &lt;symbol id="cam" viewBox="0 0 24 24"&gt;&lt;path d="M4 8h3l2-3h6l2 3h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z"/&gt;&lt;circle cx="12" cy="13" r="3.5"/&gt;&lt;/symbol&gt;
+  &lt;symbol id="chev" viewBox="0 0 24 24"&gt;&lt;path d="M9 5l7 7-7 7"/&gt;&lt;/symbol&gt;
+&lt;/svg&gt;
+&lt;div class="app"&gt;
+&lt;section class="view on" id="home"&gt;
+&lt;header&gt;
+  &lt;div class="logo" role="img" aria-label="Alangilan Senior High School logo"&gt;&lt;/div&gt;
+  &lt;div class="hcenter"&gt;
+    &lt;div class="ttl"&gt;&lt;h1&gt;F.I.X.I.T&lt;/h1&gt;&lt;p class="sub"&gt;Facility Issue Express and Inspection Tracker&lt;/p&gt;&lt;/div&gt;
+    &lt;p class="greet"&gt;Good day, &lt;em&gt;Academista!&lt;/em&gt;&lt;/p&gt;
+    &lt;div class="search"&gt;&lt;input type="search" placeholder="Search issues, services, events" aria-label="Search"&gt;&lt;button&gt;Search&lt;/button&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/header&gt;
+&lt;main&gt;
+  &lt;!-- GRAND PROJECT: replace each .ph with &lt;img src="your-photo.jpg" alt=""&gt; --&gt;
+  &lt;div class="sh"&gt;&lt;h2 class="lg"&gt;Grand Project&lt;/h2&gt;&lt;/div&gt;
+  &lt;div class="grandbox"&gt;
+    &lt;div class="slides" id="grandSlides"&gt;
+      &lt;figure class="slide"&gt;&lt;div class="ph p1"&gt;&lt;svg&gt;&lt;use href="#cam"/&gt;&lt;/svg&gt;&lt;span&gt;Photo of completed project&lt;/span&gt;&lt;/div&gt;
+        &lt;figcaption&gt;&lt;em&gt;Completed&lt;/em&gt;&lt;b&gt;Classroom Renovation&lt;/b&gt;&lt;small&gt;Sample entry · School-wide project&lt;/small&gt;&lt;/figcaption&gt;&lt;/figure&gt;
+      &lt;figure class="slide"&gt;&lt;div class="ph p2"&gt;&lt;svg&gt;&lt;use href="#cam"/&gt;&lt;/svg&gt;&lt;span&gt;Photo of completed project&lt;/span&gt;&lt;/div&gt;
+        &lt;figcaption&gt;&lt;em&gt;Completed&lt;/em&gt;&lt;b&gt;New Ceiling Fans and Lights&lt;/b&gt;&lt;small&gt;Sample entry · School-wide project&lt;/small&gt;&lt;/figcaption&gt;&lt;/figure&gt;
+      &lt;figure class="slide"&gt;&lt;div class="ph p3"&gt;&lt;svg&gt;&lt;use href="#cam"/&gt;&lt;/svg&gt;&lt;span&gt;Photo of completed project&lt;/span&gt;&lt;/div&gt;
+        &lt;figcaption&gt;&lt;em&gt;Completed&lt;/em&gt;&lt;b&gt;Repaired Chairs and Tables&lt;/b&gt;&lt;small&gt;Sample entry · School-wide project&lt;/small&gt;&lt;/figcaption&gt;&lt;/figure&gt;
+    &lt;/div&gt;
+    &lt;button class="garr gl" data-for="grandSlides" data-dir="-1" aria-label="Previous"&gt;&lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/button&gt;
+    &lt;button class="garr gr" data-for="grandSlides" data-dir="1" aria-label="Next"&gt;&lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/button&gt;
+    &lt;div class="dots"&gt;&lt;i class="on"&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;i&gt;&lt;/i&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="sh"&gt;&lt;h2&gt;Latest in ASHS&lt;/h2&gt;&lt;a class="see" href="#"&gt;See All &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/a&gt;&lt;/div&gt;
+  &lt;div class="hscroll"&gt;
+    &lt;article class="card reno"&gt;&lt;div class="ph p1"&gt;&lt;svg&gt;&lt;use href="#cam"/&gt;&lt;/svg&gt;&lt;span&gt;Photo&lt;/span&gt;&lt;/div&gt;&lt;div class="t"&gt;&lt;small&gt;Oct 1, 2026&lt;/small&gt;&lt;b&gt;Classroom Repaint&lt;/b&gt;&lt;p&gt;Fresh paint for the Grade 12 classrooms.&lt;/p&gt;&lt;/div&gt;&lt;/article&gt;
+    &lt;article class="card reno"&gt;&lt;div class="ph p2"&gt;&lt;svg&gt;&lt;use href="#cam"/&gt;&lt;/svg&gt;&lt;span&gt;Photo&lt;/span&gt;&lt;/div&gt;&lt;div class="t"&gt;&lt;small&gt;Sep 28, 2026&lt;/small&gt;&lt;b&gt;New Ceiling Fans&lt;/b&gt;&lt;p&gt;Broken fans replaced in the classrooms.&lt;/p&gt;&lt;/div&gt;&lt;/article&gt;
+    &lt;article class="card reno"&gt;&lt;div class="ph p3"&gt;&lt;svg&gt;&lt;use href="#cam"/&gt;&lt;/svg&gt;&lt;span&gt;Photo&lt;/span&gt;&lt;/div&gt;&lt;div class="t"&gt;&lt;small&gt;Sep 25, 2026&lt;/small&gt;&lt;b&gt;Chairs and Tables Repaired&lt;/b&gt;&lt;p&gt;Damaged classroom furniture fixed.&lt;/p&gt;&lt;/div&gt;&lt;/article&gt;
+  &lt;/div&gt;
+  &lt;div class="sh"&gt;&lt;h2&gt;ASHS Portal&lt;/h2&gt;&lt;/div&gt;
+  &lt;div class="portal"&gt;
+    &lt;a href="#" id="acadBtn"&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M2 9l10-5 10 5-10 5z"/&gt;&lt;path d="M6 11v5c0 1.5 3 3 6 3s6-1.5 6-3v-5"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;b&gt;Academic Guide&lt;/b&gt;&lt;small&gt;Enrollment, buildings and sections&lt;/small&gt;&lt;/a&gt;
+    &lt;a href="#" id="sbmsBtn"&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/&gt;&lt;path d="M12 6v14"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;b&gt;SBMS&lt;/b&gt;&lt;small&gt;School Based Management System&lt;/small&gt;&lt;/a&gt;
+    &lt;a href="#" id="picBtn"&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"&gt;&lt;circle cx="9" cy="8" r="3.5"/&gt;&lt;path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/&gt;&lt;circle cx="17" cy="9" r="2.5"/&gt;&lt;path d="M17 14c2.8 0 4.5 1.9 4.5 4.5"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;b&gt;Persons In Charge&lt;/b&gt;&lt;small&gt;Meet the Alangilan staff&lt;/small&gt;&lt;/a&gt;
+  &lt;/div&gt;
+  &lt;!-- EVENTS: keep sorted by date, nearest first --&gt;
+  &lt;div class="sh"&gt;&lt;h2&gt;Events&lt;/h2&gt;&lt;div class="ctl"&gt;
+    &lt;button class="arr l" data-for="evs" data-dir="-1" aria-label="Previous events"&gt;&lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/button&gt;
+    &lt;button class="arr" data-for="evs" data-dir="1" aria-label="Upcoming events"&gt;&lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;/div&gt;&lt;/div&gt;
+  &lt;div class="evs" id="evs"&gt;
+  &lt;/div&gt;
+  &lt;!-- ASHS PROMO BANNER --&gt;
+  &lt;div class="sh"&gt;&lt;h2&gt;Alangilan Senior High School&lt;/h2&gt;&lt;/div&gt;
+  &lt;div class="promo"&gt;
+    &lt;div class="pl"&gt;&lt;p&gt;&lt;span&gt;Soar high with&lt;/span&gt;&lt;mark&gt;Excellence&lt;/mark&gt;&lt;/p&gt;&lt;p&gt;&lt;span&gt;Lead with&lt;/span&gt;&lt;mark&gt;Confidence&lt;/mark&gt;&lt;/p&gt;&lt;/div&gt;
+    &lt;div class="pr"&gt;&lt;div class="logo" role="img" aria-label="ASHS logo"&gt;&lt;/div&gt;&lt;div class="wmimg" role="img" aria-label="ASHS is the standard"&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;button class="browse" id="browseBtn" aria-expanded="false"&gt;Browse Now&lt;/button&gt;
+  &lt;/div&gt;
+&lt;/main&gt;
+&lt;/section&gt;
+&lt;section class="view" id="services"&gt;
+&lt;div class="pghead svh"&gt;
+  &lt;div class="logo" role="img" aria-label="Alangilan Senior High School logo"&gt;&lt;/div&gt;
+  &lt;div class="hc"&gt;
+    &lt;p class="pt"&gt;Services&lt;/p&gt;&lt;p class="ps"&gt;Choose what you want to report&lt;/p&gt;
+    &lt;div class="search"&gt;&lt;input type="search" id="svcSearch" placeholder="Search services, e.g. broken chair, fan, door" aria-label="Search services" autocomplete="off"&gt;&lt;button type="button" id="svcGo"&gt;Search&lt;/button&gt;&lt;/div&gt;
+    &lt;div class="sugg"&gt;&lt;span&gt;Try:&lt;/span&gt;&lt;button type="button" data-q="broken chair"&gt;Broken chair&lt;/button&gt;&lt;button type="button" data-q="fan"&gt;Fan&lt;/button&gt;&lt;button type="button" data-q="lights flickering"&gt;Flickering lights&lt;/button&gt;&lt;button type="button" data-q="door lock"&gt;Door lock&lt;/button&gt;&lt;button type="button" data-q="water leak"&gt;Water leak&lt;/button&gt;&lt;button type="button" data-q="trash bin"&gt;Trash bin&lt;/button&gt;&lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;main&gt;
+  &lt;div class="sh"&gt;&lt;h2&gt;Choose a service&lt;/h2&gt;&lt;button type="button" class="see" id="svcAll" hidden&gt;Show all&lt;/button&gt;&lt;/div&gt;
+  &lt;div class="svcpick"&gt;
+    &lt;button type="button" class="card sp" data-s="0"&gt;&lt;em class="no"&gt;01&lt;/em&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M7 3h10v8H7z"/&gt;&lt;path d="M5 11h14v3H5z"/&gt;&lt;path d="M7 14v7M17 14v7"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;b&gt;Classroom Furniture&lt;/b&gt;&lt;small&gt;2 categories&lt;/small&gt;&lt;/button&gt;
+    &lt;button type="button" class="card sp" data-s="1"&gt;&lt;em class="no"&gt;02&lt;/em&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M13 2 4 14h7l-1 8 9-12h-7z"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;b&gt;Electrical &amp;amp; Classroom Equipment&lt;/b&gt;&lt;small&gt;3 categories&lt;/small&gt;&lt;/button&gt;
+    &lt;button type="button" class="card sp" data-s="2"&gt;&lt;em class="no"&gt;03&lt;/em&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17"/&gt;&lt;path d="M3 21h18"/&gt;&lt;circle cx="15" cy="12.5" r=".8"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;b&gt;Classroom Facilities&lt;/b&gt;&lt;small&gt;4 categories&lt;/small&gt;&lt;/button&gt;
+    &lt;button type="button" class="card sp" data-s="3"&gt;&lt;em class="no"&gt;04&lt;/em&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M14 3l-3 9"/&gt;&lt;path d="M8 12h8l2 9H6z"/&gt;&lt;path d="M9 16l.5 5M12 16v5M15 16l-.5 5"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;b&gt;Classroom Maintenance Supplies&lt;/b&gt;&lt;small&gt;3 categories&lt;/small&gt;&lt;/button&gt;
+  &lt;/div&gt;
+  &lt;p class="svcstat mute" id="svcStat" role="status" aria-live="polite"&gt;&lt;/p&gt;
+  &lt;div class="svcnone card" id="svcNone" hidden&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;circle cx="11" cy="11" r="7"/&gt;&lt;path d="M20 20l-4-4"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;b&gt;No matching service found&lt;/b&gt;&lt;span class="mute"&gt;Try other words such as chair, fan, light, door, window, board, broom or trash bin.&lt;/span&gt;&lt;/div&gt;
+  &lt;div id="svcList"&gt;
+  &lt;div class="cat svc" data-i="0" data-k="furniture chair chairs table tables desk desks cabinet seat armchair fixtures"&gt;
+    &lt;div class="svchead"&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M7 3h10v8H7z"/&gt;&lt;path d="M5 11h14v3H5z"/&gt;&lt;path d="M7 14v7M17 14v7"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;div&gt;&lt;em class="eb"&gt;Service 01&lt;/em&gt;&lt;h2&gt;Classroom Furniture&lt;/h2&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;p class="mute"&gt;For reporting damaged or unusable classroom furniture such as chairs, tables, desks, cabinets, and other classroom fixtures.&lt;/p&gt;
+    &lt;div class="cats"&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M7 3h10v8H7z"/&gt;&lt;path d="M5 11h14v3H5z"/&gt;&lt;path d="M7 14v7M17 14v7"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Chairs&lt;/b&gt;&lt;small&gt;3 issue types · 5 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Broken/Cracked&lt;/button&gt;&lt;button type="button" class="chip"&gt;Missing Parts&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Stability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Loose/Unstable&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Insufficient Chairs&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Available Chairs&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M3 6h18v3H3z"/&gt;&lt;path d="M5 9v11M19 9v11M9 9v5h6V9"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Tables &amp;amp; Desks&lt;/b&gt;&lt;small&gt;3 issue types · 5 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Broken/Cracked&lt;/button&gt;&lt;button type="button" class="chip"&gt;Damaged Surface&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Stability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Loose/Unstable&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Insufficient Tables/Desks&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Available Tables/Desks&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cat svc" data-i="1" data-k="electrical equipment electric fan fans light lights bulb lamp tv television projector devices"&gt;
+    &lt;div class="svchead"&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M13 2 4 14h7l-1 8 9-12h-7z"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;div&gt;&lt;em class="eb"&gt;Service 02&lt;/em&gt;&lt;h2&gt;Electrical &amp;amp; Classroom Equipment&lt;/h2&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;p class="mute"&gt;For reporting malfunctioning or damaged equipment such as electric fans, lights, televisions, projectors, and other electrical devices used in classrooms.&lt;/p&gt;
+    &lt;div class="cats"&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;circle cx="12" cy="10" r="1.6"/&gt;&lt;path d="M12 8.4C11 4 14 2 16 3.5S15 8 12 8.4z"/&gt;&lt;path d="M12 8.4C11 4 14 2 16 3.5S15 8 12 8.4z" transform="rotate(120 12 10)"/&gt;&lt;path d="M12 8.4C11 4 14 2 16 3.5S15 8 12 8.4z" transform="rotate(240 12 10)"/&gt;&lt;path d="M12 15v5M8 21h8"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Electric Fans&lt;/b&gt;&lt;small&gt;4 issue types · 7 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Functionality Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Not Turning On&lt;/button&gt;&lt;button type="button" class="chip"&gt;Not Operating Properly&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Performance Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Weak/No Airflow&lt;/button&gt;&lt;button type="button" class="chip"&gt;Unusual Noise&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Damaged Parts&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Insufficient Fans&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Available Fan&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/&gt;&lt;path d="M10 19h4M10.5 21.5h3"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Lights&lt;/b&gt;&lt;small&gt;4 issue types · 7 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Functionality Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Not Turning On&lt;/button&gt;&lt;button type="button" class="chip"&gt;Intermittent Operation&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Performance Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Flickering&lt;/button&gt;&lt;button type="button" class="chip"&gt;Dim Lighting&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Damaged Fixture&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Insufficient Lighting&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Available Light&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;rect x="3" y="4" width="18" height="12" rx="2"/&gt;&lt;path d="M8 20h8M12 16v4"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Classroom TV&lt;/b&gt;&lt;small&gt;4 issue types · 7 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Functionality Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Not Turning On&lt;/button&gt;&lt;button type="button" class="chip"&gt;Unexpected Shutdown&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Display &amp;amp; Audio Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Display Problem&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Sound&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Connectivity Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Connection Problem&lt;/button&gt;&lt;button type="button" class="chip"&gt;Unable to Connect&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;No Available TV&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cat svc" data-i="2" data-k="facilities facility door doors window windows ceiling wall walls board whiteboard blackboard leak lock"&gt;
+    &lt;div class="svchead"&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M5 21V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v17"/&gt;&lt;path d="M3 21h18"/&gt;&lt;circle cx="15" cy="12.5" r=".8"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;div&gt;&lt;em class="eb"&gt;Service 03&lt;/em&gt;&lt;h2&gt;Classroom Facilities&lt;/h2&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;p class="mute"&gt;For reporting other classroom facility problems that do not fall under furniture or equipment, such as damaged doors, windows, ceilings, walls, or other physical classroom concerns.&lt;/p&gt;
+    &lt;div class="cats"&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M6 21V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v17"/&gt;&lt;path d="M4 21h16"/&gt;&lt;circle cx="15" cy="12.5" r=".8"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Doors&lt;/b&gt;&lt;small&gt;3 issue types · 6 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Broken Handle/Knob&lt;/button&gt;&lt;button type="button" class="chip"&gt;Damaged Door&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Functionality Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Difficult to Open/Close&lt;/button&gt;&lt;button type="button" class="chip"&gt;Door Not Closing Properly&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Security Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Lock Problem&lt;/button&gt;&lt;button type="button" class="chip"&gt;Damaged Lock&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;rect x="4" y="3" width="16" height="18" rx="1.5"/&gt;&lt;path d="M12 3v18M4 12h16"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Windows&lt;/b&gt;&lt;small&gt;2 issue types · 4 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Broken Glass&lt;/button&gt;&lt;button type="button" class="chip"&gt;Damaged Frame&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Functionality Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Difficult to Open/Close&lt;/button&gt;&lt;button type="button" class="chip"&gt;Window Not Closing Properly&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;rect x="3" y="4" width="18" height="16" rx="1"/&gt;&lt;path d="M3 9.3h18M3 14.6h18M9 4v5.3M15 9.3v5.3M9 14.6V20"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Walls &amp;amp; Ceiling&lt;/b&gt;&lt;small&gt;2 issue types · 4 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Structural Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Cracks&lt;/button&gt;&lt;button type="button" class="chip"&gt;Damaged Surface&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Water-Related Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Water Leakage&lt;/button&gt;&lt;button type="button" class="chip"&gt;Water Stains&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;rect x="3" y="4" width="18" height="12" rx="1.5"/&gt;&lt;path d="M7 8h6M7 11.5h9M12 16v4M8 20h8"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Whiteboard/Board&lt;/b&gt;&lt;small&gt;3 issue types · 6 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Cracked/Broken Board&lt;/button&gt;&lt;button type="button" class="chip"&gt;Damaged Surface&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-f"&gt;&lt;b&gt;Functionality Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Difficult to Erase&lt;/button&gt;&lt;button type="button" class="chip"&gt;Marker Ink Stains&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Insufficient Boards&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Available Board&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="cat svc" data-i="3" data-k="maintenance supplies cleaning broom mop dustpan wax trash bin garbage waste storage"&gt;
+    &lt;div class="svchead"&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M14 3l-3 9"/&gt;&lt;path d="M8 12h8l2 9H6z"/&gt;&lt;path d="M9 16l.5 5M12 16v5M15 16l-.5 5"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;div&gt;&lt;em class="eb"&gt;Service 04&lt;/em&gt;&lt;h2&gt;Classroom Maintenance Supplies&lt;/h2&gt;&lt;/div&gt;&lt;/div&gt;
+    &lt;p class="mute"&gt;For reporting concerns involving classroom cleaning tools, maintenance materials, and waste-management supplies needed to keep classrooms clean, safe, and properly maintained.&lt;/p&gt;
+    &lt;div class="cats"&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M14 3l-3 9"/&gt;&lt;path d="M8 12h8l2 9H6z"/&gt;&lt;path d="M9 16l.5 5M12 16v5M15 16l-.5 5"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Cleaning Tools&lt;/b&gt;&lt;small&gt;2 issue types · 7 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Insufficient Brooms&lt;/button&gt;&lt;button type="button" class="chip"&gt;Insufficient Dustpans&lt;/button&gt;&lt;button type="button" class="chip"&gt;Insufficient Mops&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Available Cleaning Tools&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Broken/Damaged Broom&lt;/button&gt;&lt;button type="button" class="chip"&gt;Broken/Damaged Mop&lt;/button&gt;&lt;button type="button" class="chip"&gt;Damaged Dustpan&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;ellipse cx="12" cy="8" rx="7" ry="2.5"/&gt;&lt;path d="M5 8l1.5 12h11L19 8"/&gt;&lt;path d="M7.5 5.5C8 2.5 16 2.5 16.5 5.5"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Cleaning Materials&lt;/b&gt;&lt;small&gt;2 issue types · 4 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Insufficient Floor Wax&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Available Cleaning Materials&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Storage &amp;amp; Organization Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;No Proper Storage&lt;/button&gt;&lt;button type="button" class="chip"&gt;Damaged Storage Container&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+      &lt;details class="item card"&gt;&lt;summary&gt;&lt;i class="ic"&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M4 7h16M9 7V4h6v3"/&gt;&lt;path d="M6 7l1 14h10l1-14M10 11v6M14 11v6"/&gt;&lt;/svg&gt;&lt;/i&gt;&lt;span class="st"&gt;&lt;b&gt;Waste Management&lt;/b&gt;&lt;small&gt;2 issue types · 3 options&lt;/small&gt;&lt;/span&gt;&lt;/summary&gt;
+        &lt;div class="grp g-a"&gt;&lt;b&gt;Availability Issues&lt;/b&gt;&lt;button type="button" class="chip"&gt;Insufficient Trash Bins&lt;/button&gt;&lt;button type="button" class="chip"&gt;No Available Trash Bin&lt;/button&gt;&lt;/div&gt;
+        &lt;div class="grp g-w"&gt;&lt;b&gt;Physical Damage&lt;/b&gt;&lt;button type="button" class="chip"&gt;Broken/Damaged Trash Bin&lt;/button&gt;&lt;/div&gt;
+      &lt;/details&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/main&gt;
+&lt;div class="selbar" id="selBar" role="region" aria-label="Selected issue"&gt;
+  &lt;div class="si"&gt;&lt;b id="selTxt"&gt;&lt;/b&gt;&lt;small id="selSub"&gt;&lt;/small&gt;&lt;/div&gt;
+  &lt;button type="button" class="go" id="selGo"&gt;Report this&lt;/button&gt;
+  &lt;button type="button" class="x" id="selX" aria-label="Clear selection"&gt;&amp;times;&lt;/button&gt;
+&lt;/div&gt;
+&lt;/section&gt;
+&lt;section class="view" id="report"&gt;
+&lt;div class="pghead svh"&gt;
+  &lt;div class="logo" role="img" aria-label="Alangilan Senior High School logo"&gt;&lt;/div&gt;
+  &lt;div class="hc"&gt;
+    &lt;p class="pt"&gt;&lt;span class="pt__txt"&gt;Report an Issue&lt;/span&gt;&lt;/p&gt;&lt;p class="ps"&gt;Application Form&lt;/p&gt;
+    &lt;ol class="rsteps" aria-label="Report progress"&gt;
+      &lt;li class="on" data-step="1"&gt;&lt;b&gt;1&lt;/b&gt;Log in&lt;/li&gt;
+      &lt;li data-step="2"&gt;&lt;b&gt;2&lt;/b&gt;Fill in details&lt;/li&gt;
+      &lt;li data-step="3"&gt;&lt;b&gt;3&lt;/b&gt;Submit&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/div&gt;
+&lt;/div&gt;
+&lt;main&gt;
+  &lt;!-- The issue picked on the Services page ("Report this" sends people here) --&gt;
+  &lt;div class="picked" id="report-picked" hidden&gt;
+    &lt;span class="picked__icon"&gt;&lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;path d="M5 12.5l4.5 4.5L19 7.5"/&gt;&lt;/svg&gt;&lt;/span&gt;
+    &lt;div class="picked__text"&gt;&lt;small&gt;You're reporting&lt;/small&gt;&lt;b id="rpTxt"&gt;&lt;/b&gt;&lt;span id="rpSub"&gt;&lt;/span&gt;&lt;/div&gt;
+    &lt;button type="button" class="picked__change" id="rpChange"&gt;Change&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;section class="locked card" id="report-locked"&gt;
+    &lt;span class="locked__ic"&gt;&lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;rect x="5" y="11" width="14" height="9" rx="2"/&gt;&lt;path d="M8 11V8a4 4 0 0 1 8 0v3"/&gt;&lt;/svg&gt;&lt;/span&gt;
+    &lt;b id="report-locked-title"&gt;Not logged in yet&lt;/b&gt;
+    &lt;p id="report-locked-text"&gt;Log in first to send a report. Only logged-in students and teachers can report an issue.&lt;/p&gt;
+  &lt;/section&gt;
+  &lt;p class="form-message fx-ok" id="report-done" role="status" hidden&gt;&lt;/p&gt;
+
+  &lt;!-- STEP 2a: STUDENT FORM (ids start with st-) --&gt;
+  &lt;section class="report-card" id="report-card-student" aria-labelledby="st-title" hidden&gt;
+    &lt;div class="report__top"&gt;
+      &lt;p class="report__badge"&gt;&lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;rect x="5" y="4" width="14" height="17" rx="2"/&gt;&lt;path d="M9 4h6v3H9zM8.5 12h7M8.5 16h5"/&gt;&lt;/svg&gt; Application Form &amp;middot; Students&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;h3 class="report__title" id="st-title"&gt;Student Report Form&lt;/h3&gt;
+    &lt;form class="report-form" id="st-form" action="#" method="post" enctype="multipart/form-data"&gt;
+      &lt;input type="hidden" name="reporter_role" value="student"&gt;
+      &lt;!-- filled automatically from the issue chosen on the Services page --&gt;
+      &lt;input type="hidden" name="issue_service" id="st-issue-service"&gt;
+      &lt;input type="hidden" name="issue_category" id="st-issue-category"&gt;
+      &lt;input type="hidden" name="issue_group" id="st-issue-group"&gt;
+      &lt;input type="hidden" name="issue_detail" id="st-issue-detail"&gt;
+      &lt;div class="who" id="st-who" hidden&gt;&lt;small&gt;Reporting as&lt;/small&gt;&lt;b id="st-who-name"&gt;&lt;/b&gt;&lt;span id="st-who-sub"&gt;&lt;/span&gt;&lt;/div&gt;
+
+
+          &lt;div class="field"&gt;
+            &lt;label class="field__label" for="st-name"&gt;Name&lt;/label&gt;
+            &lt;input class="field__control" type="text" id="st-name" name="name" placeholder="Last Name, First Name, Middle Initial" autocomplete="name" required&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field"&gt;
+            &lt;label class="field__label" for="st-adviser"&gt;Adviser's Name&lt;/label&gt;
+            &lt;input class="field__control" type="text" id="st-adviser" name="adviser" placeholder="Last Name, First Name, Middle Initial" required&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field"&gt;
+            &lt;label class="field__label" for="st-section"&gt;Your Section&lt;/label&gt;
+            &lt;div class="select-wrap"&gt;
+              &lt;select class="field__control" id="st-section" name="section" required&gt;
+                &lt;option value="" selected disabled&gt;Select Section&lt;/option&gt;
+                &lt;optgroup label="Grade 12"&gt;
+                  &lt;option&gt;Descartes&lt;/option&gt;
+                  &lt;option&gt;Euler&lt;/option&gt;
+                  &lt;option&gt;Einstein&lt;/option&gt;
+                  &lt;option&gt;Euclid&lt;/option&gt;
+                  &lt;option&gt;Fibonacci&lt;/option&gt;
+                  &lt;option&gt;Laplace&lt;/option&gt;
+                  &lt;option&gt;Leibniz&lt;/option&gt;
+                  &lt;option&gt;Newton&lt;/option&gt;
+                  &lt;option&gt;Pascal&lt;/option&gt;
+                  &lt;option&gt;Pearson&lt;/option&gt;
+                  &lt;option&gt;Philip Crosby&lt;/option&gt;
+                  &lt;option&gt;Elton Mayo&lt;/option&gt;
+                  &lt;option&gt;Douglas McGregor&lt;/option&gt;
+                  &lt;option&gt;Luca Pacioli&lt;/option&gt;
+                  &lt;option&gt;Aquinas&lt;/option&gt;
+                  &lt;option&gt;Aurelius&lt;/option&gt;
+                  &lt;option&gt;Confucius&lt;/option&gt;
+                  &lt;option&gt;Freud&lt;/option&gt;
+                  &lt;option&gt;Mencius&lt;/option&gt;
+                  &lt;option&gt;Shakespeare&lt;/option&gt;
+                &lt;/optgroup&gt;
+                &lt;optgroup label="Grade 11"&gt;
+                  &lt;option&gt;Luminaries&lt;/option&gt;
+                  &lt;option&gt;Pathfinders&lt;/option&gt;
+                  &lt;option&gt;Practitioners&lt;/option&gt;
+                  &lt;option&gt;Thinkers&lt;/option&gt;
+                  &lt;option&gt;Innovators&lt;/option&gt;
+                  &lt;option&gt;Developers&lt;/option&gt;
+                  &lt;option&gt;Designers&lt;/option&gt;
+                  &lt;option&gt;Diplomats&lt;/option&gt;
+                  &lt;option&gt;Empiricists&lt;/option&gt;
+                  &lt;option&gt;Strategists&lt;/option&gt;
+                  &lt;option&gt;Voyagers&lt;/option&gt;
+                  &lt;option&gt;Advocates&lt;/option&gt;
+                  &lt;option&gt;Ambassadors&lt;/option&gt;
+                  &lt;option&gt;Analysts&lt;/option&gt;
+                  &lt;option&gt;Aspirers&lt;/option&gt;
+                  &lt;option&gt;Builders&lt;/option&gt;
+                  &lt;option&gt;Catalysts&lt;/option&gt;
+                  &lt;option&gt;Conquerors&lt;/option&gt;
+                &lt;/optgroup&gt;
+              &lt;/select&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field-row"&gt;
+            &lt;div class="field"&gt;
+              &lt;label class="field__label" for="st-grade"&gt;Grade Level&lt;/label&gt;
+              &lt;div class="select-wrap"&gt;
+                &lt;select class="field__control" id="st-grade" name="grade" required&gt;
+                  &lt;option value="" selected disabled&gt;Select Grade Level&lt;/option&gt;
+                  &lt;option value="11"&gt;Grade 11&lt;/option&gt;
+                  &lt;option value="12"&gt;Grade 12&lt;/option&gt;
+                &lt;/select&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div class="field"&gt;
+              &lt;label class="field__label" id="st-bs-label" for="st-bs-button"&gt;Building &amp;amp; Area&lt;/label&gt;
+
+              &lt;!-- One dropdown: Building, then Floor, then Area, all inside the same box --&gt;
+              &lt;div class="combo" id="st-combo"&gt;
+                &lt;button type="button" class="field__control combo__button" id="st-bs-button" aria-haspopup="true" aria-expanded="false" disabled aria-labelledby="st-bs-label st-bs-value"&gt;
+                  &lt;span class="combo__value combo__value--placeholder" id="st-bs-value"&gt;Select Grade Level first&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;input class="combo__validator" type="text" id="st-building-section" name="building_section" required tabindex="-1" aria-hidden="true" autocomplete="off"&gt;
+
+                &lt;div class="combo__panel" id="st-bs-panel" hidden&gt;
+                  &lt;div class="combo__head" id="st-bs-head" hidden&gt;
+                    &lt;button type="button" class="combo__back" id="st-bs-back"&gt;&amp;larr; Back&lt;/button&gt;
+                    &lt;span class="combo__crumb" id="st-bs-crumb"&gt;&lt;/span&gt;
+                  &lt;/div&gt;
+                  &lt;ul class="combo__list" id="st-bs-list"&gt;&lt;/ul&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+&lt;div class="field field--wide" id="st-type-field"&gt;
+            &lt;label class="field__label" id="st-type-label" for="st-type-button"&gt;Type of Problem&lt;/label&gt;
+
+            &lt;!-- One dropdown: Service, then Category, then Issue type, then Option. Built from the Services page. --&gt;
+            &lt;div class="combo" id="st-type-combo"&gt;
+              &lt;button type="button" class="field__control combo__button" id="st-type-button" aria-haspopup="true" aria-expanded="false" aria-labelledby="st-type-label st-type-value"&gt;
+                &lt;span class="combo__value combo__value--wrap combo__value--placeholder" id="st-type-value"&gt;Select Type&lt;/span&gt;
+              &lt;/button&gt;
+              &lt;input class="combo__validator" type="text" id="st-problem-type" name="problem_type" required tabindex="-1" aria-hidden="true" autocomplete="off"&gt;
+
+              &lt;div class="combo__panel" id="st-type-panel" hidden&gt;
+                &lt;div class="combo__head" id="st-type-head" hidden&gt;
+                  &lt;button type="button" class="combo__back" id="st-type-back"&gt;&amp;larr; Back&lt;/button&gt;
+                  &lt;span class="combo__crumb" id="st-type-crumb"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;ul class="combo__list" id="st-type-list"&gt;&lt;/ul&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field" id="st-other-field" hidden&gt;
+            &lt;label class="field__label" for="st-other-problem"&gt;Please specify&lt;/label&gt;
+            &lt;input class="field__control" type="text" id="st-other-problem" name="other_problem" placeholder="Type what the problem is"&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field"&gt;
+            &lt;span class="field__label" id="st-photo-label"&gt;Upload Photo&lt;/span&gt;
+            &lt;input class="upload__input" type="file" id="st-photo" name="photo" accept="image/*" capture="environment" aria-labelledby="st-photo-label"&gt;
+            &lt;label class="upload" for="st-photo"&gt;
+              &lt;span class="upload__icon" aria-hidden="true"&gt;&lt;svg&gt;&lt;use href="#cam"/&gt;&lt;/svg&gt;&lt;/span&gt;
+              &lt;span class="upload__text" id="st-photo-text"&gt;Take/Upload Photo&lt;/span&gt;
+            &lt;/label&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field"&gt;
+            &lt;label class="field__label" for="st-description"&gt;Description of Problem&lt;/label&gt;
+            &lt;textarea class="field__control field__control--textarea" id="st-description" name="description" rows="5" placeholder="Describe the problem..." required&gt;&lt;/textarea&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field"&gt;
+            &lt;label class="field__label" for="st-datetime"&gt;Date &amp;amp; Time&lt;/label&gt;
+            &lt;div class="auto-field"&gt;
+              &lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;circle cx="12" cy="12" r="9"/&gt;&lt;path d="M12 7v5l3 2"/&gt;&lt;/svg&gt;
+              &lt;input class="auto-field__input" type="text" id="st-datetime" name="datetime" value="Automatically recorded" readonly&gt;
+              &lt;span class="auto-field__tag"&gt;Auto&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;button class="btn-submit" type="submit"&gt;
+            &lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;path d="M21 3L3 10.5l7 2.5 2.5 7z"/&gt;&lt;path d="M10 13l11-10"/&gt;&lt;/svg&gt; SUBMIT REPORT
+          &lt;/button&gt;
+
+          &lt;p class="form-message" id="st-form-message" role="status" hidden&gt;Report ready to submit. Connect this form to your backend to save it.&lt;/p&gt;
+    &lt;/form&gt;
+  &lt;/section&gt;
+
+  &lt;!-- STEP 2b: TEACHER FORM (ids start with tc-) --&gt;
+  &lt;section class="report-card" id="report-card-teacher" aria-labelledby="tc-title" hidden&gt;
+    &lt;div class="report__top"&gt;
+      &lt;p class="report__badge"&gt;&lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;rect x="5" y="4" width="14" height="17" rx="2"/&gt;&lt;path d="M9 4h6v3H9zM8.5 12h7M8.5 16h5"/&gt;&lt;/svg&gt; Application Form &amp;middot; Teachers&lt;/p&gt;
+    &lt;/div&gt;
+    &lt;h3 class="report__title" id="tc-title"&gt;Teacher Report Form&lt;/h3&gt;
+    &lt;form class="report-form" id="tc-form" action="#" method="post" enctype="multipart/form-data"&gt;
+      &lt;input type="hidden" name="reporter_role" value="teacher"&gt;
+      &lt;!-- filled automatically from the issue chosen on the Services page --&gt;
+      &lt;input type="hidden" name="issue_service" id="tc-issue-service"&gt;
+      &lt;input type="hidden" name="issue_category" id="tc-issue-category"&gt;
+      &lt;input type="hidden" name="issue_group" id="tc-issue-group"&gt;
+      &lt;input type="hidden" name="issue_detail" id="tc-issue-detail"&gt;
+      &lt;div class="who" id="tc-who" hidden&gt;&lt;small&gt;Reporting as&lt;/small&gt;&lt;b id="tc-who-name"&gt;&lt;/b&gt;&lt;span id="tc-who-sub"&gt;&lt;/span&gt;&lt;/div&gt;
+
+
+          &lt;div class="field"&gt;
+            &lt;label class="field__label" for="tc-name"&gt;Name&lt;/label&gt;
+            &lt;input class="field__control" type="text" id="tc-name" name="name" placeholder="Last Name, First Name, Middle Initial" autocomplete="name" required&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field-row"&gt;
+
+            &lt;div class="field"&gt;
+              &lt;label class="field__label" id="tc-bs-label" for="tc-bs-button"&gt;Building &amp;amp; Area&lt;/label&gt;
+
+              &lt;!-- One dropdown: Building, then Floor, then Area, all inside the same box --&gt;
+              &lt;div class="combo" id="tc-combo"&gt;
+                &lt;button type="button" class="field__control combo__button" id="tc-bs-button" aria-haspopup="true" aria-expanded="false" aria-labelledby="tc-bs-label tc-bs-value"&gt;
+                  &lt;span class="combo__value combo__value--placeholder" id="tc-bs-value"&gt;Select Building &amp;amp; Area&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;input class="combo__validator" type="text" id="tc-building-section" name="building_section" required tabindex="-1" aria-hidden="true" autocomplete="off"&gt;
+
+                &lt;div class="combo__panel" id="tc-bs-panel" hidden&gt;
+                  &lt;div class="combo__head" id="tc-bs-head" hidden&gt;
+                    &lt;button type="button" class="combo__back" id="tc-bs-back"&gt;&amp;larr; Back&lt;/button&gt;
+                    &lt;span class="combo__crumb" id="tc-bs-crumb"&gt;&lt;/span&gt;
+                  &lt;/div&gt;
+                  &lt;ul class="combo__list" id="tc-bs-list"&gt;&lt;/ul&gt;
+                &lt;/div&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+&lt;div class="field field--wide" id="tc-type-field"&gt;
+            &lt;label class="field__label" id="tc-type-label" for="tc-type-button"&gt;Type of Problem&lt;/label&gt;
+
+            &lt;!-- One dropdown: Service, then Category, then Issue type, then Option. Built from the Services page. --&gt;
+            &lt;div class="combo" id="tc-type-combo"&gt;
+              &lt;button type="button" class="field__control combo__button" id="tc-type-button" aria-haspopup="true" aria-expanded="false" aria-labelledby="tc-type-label tc-type-value"&gt;
+                &lt;span class="combo__value combo__value--wrap combo__value--placeholder" id="tc-type-value"&gt;Select Type&lt;/span&gt;
+              &lt;/button&gt;
+              &lt;input class="combo__validator" type="text" id="tc-problem-type" name="problem_type" required tabindex="-1" aria-hidden="true" autocomplete="off"&gt;
+
+              &lt;div class="combo__panel" id="tc-type-panel" hidden&gt;
+                &lt;div class="combo__head" id="tc-type-head" hidden&gt;
+                  &lt;button type="button" class="combo__back" id="tc-type-back"&gt;&amp;larr; Back&lt;/button&gt;
+                  &lt;span class="combo__crumb" id="tc-type-crumb"&gt;&lt;/span&gt;
+                &lt;/div&gt;
+                &lt;ul class="combo__list" id="tc-type-list"&gt;&lt;/ul&gt;
+              &lt;/div&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field" id="tc-other-field" hidden&gt;
+            &lt;label class="field__label" for="tc-other-problem"&gt;Please specify&lt;/label&gt;
+            &lt;input class="field__control" type="text" id="tc-other-problem" name="other_problem" placeholder="Type what the problem is"&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field"&gt;
+            &lt;span class="field__label" id="tc-photo-label"&gt;Upload Photo&lt;/span&gt;
+            &lt;input class="upload__input" type="file" id="tc-photo" name="photo" accept="image/*" capture="environment" aria-labelledby="tc-photo-label"&gt;
+            &lt;label class="upload" for="tc-photo"&gt;
+              &lt;span class="upload__icon" aria-hidden="true"&gt;&lt;svg&gt;&lt;use href="#cam"/&gt;&lt;/svg&gt;&lt;/span&gt;
+              &lt;span class="upload__text" id="tc-photo-text"&gt;Take/Upload Photo&lt;/span&gt;
+            &lt;/label&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field"&gt;
+            &lt;label class="field__label" for="tc-description"&gt;Description of Problem&lt;/label&gt;
+            &lt;textarea class="field__control field__control--textarea" id="tc-description" name="description" rows="5" placeholder="Describe the problem..." required&gt;&lt;/textarea&gt;
+          &lt;/div&gt;
+
+          &lt;div class="field"&gt;
+            &lt;label class="field__label" for="tc-datetime"&gt;Date &amp;amp; Time&lt;/label&gt;
+            &lt;div class="auto-field"&gt;
+              &lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;circle cx="12" cy="12" r="9"/&gt;&lt;path d="M12 7v5l3 2"/&gt;&lt;/svg&gt;
+              &lt;input class="auto-field__input" type="text" id="tc-datetime" name="datetime" value="Automatically recorded" readonly&gt;
+              &lt;span class="auto-field__tag"&gt;Auto&lt;/span&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+
+          &lt;button class="btn-submit" type="submit"&gt;
+            &lt;svg viewBox="0 0 24 24" aria-hidden="true"&gt;&lt;path d="M21 3L3 10.5l7 2.5 2.5 7z"/&gt;&lt;path d="M10 13l11-10"/&gt;&lt;/svg&gt; SUBMIT REPORT
+          &lt;/button&gt;
+
+          &lt;p class="form-message" id="tc-form-message" role="status" hidden&gt;Report ready to submit. Connect this form to your backend to save it.&lt;/p&gt;
+    &lt;/form&gt;
+  &lt;/section&gt;
+&lt;/main&gt;
+&lt;/section&gt;
+&lt;section class="view" id="activity"&gt;
+&lt;div class="pghead svh"&gt;
+  &lt;div class="logo" role="img" aria-label="Alangilan Senior High School logo"&gt;&lt;/div&gt;
+  &lt;div class="hc"&gt;&lt;p class="pt"&gt;Activity&lt;/p&gt;&lt;p class="ps"&gt;Progress of your reports&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;main class="fx"&gt;&lt;div id="act-root"&gt;&lt;/div&gt;&lt;/main&gt;
+&lt;/section&gt;
+&lt;section class="view" id="profile"&gt;
+&lt;div class="pghead svh"&gt;
+  &lt;div class="logo" role="img" aria-label="Alangilan Senior High School logo"&gt;&lt;/div&gt;
+  &lt;div class="hc"&gt;&lt;p class="pt"&gt;Profile&lt;/p&gt;&lt;p class="ps"&gt;Your FIXIT account&lt;/p&gt;&lt;/div&gt;
+&lt;/div&gt;
+&lt;main class="fx"&gt;&lt;div id="prof-root"&gt;&lt;/div&gt;&lt;/main&gt;
+&lt;/section&gt;
+&lt;section class="view" id="browse"&gt;
+&lt;div class="topbar"&gt;&lt;button class="back" id="bback" type="button" aria-label="Back to Home"&gt;&lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;p&gt;Browse ASHS&lt;/p&gt;&lt;/div&gt;
+&lt;main&gt;
+  &lt;div class="infocard"&gt;
+    &lt;div class="wmimg" role="img" aria-label="ASHS is the standard"&gt;&lt;/div&gt;
+    &lt;p&gt;Discover the official ASHS page and the student organizations of Alangilan Senior High School. Stay connected with the whole ASHS community.&lt;/p&gt;
+    &lt;p class="note"&gt;Soar high with excellence. Lead with confidence.&lt;/p&gt;
+    &lt;div class="addr"&gt;&lt;b&gt;Alangilan Senior High School&lt;/b&gt;&lt;span&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/&gt;&lt;circle cx="12" cy="10" r="2.5"/&gt;&lt;/svg&gt;Alangilan, Batangas City&lt;/span&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="bsearch"&gt;&lt;input type="search" id="bsearch" placeholder="Search..." aria-label="Search ASHS page or orgs"&gt;&lt;/div&gt;
+  &lt;div class="bgroup"&gt;
+    &lt;div class="plist"&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/DepEdASHS342235" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg fbpic" role="img" aria-label="DepEd Alangilan Senior High School logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;DepEd Alangilan Senior High School - Batangas City&lt;/b&gt;&lt;span&gt;Official ASHS page &amp;bull; Announcements &amp;bull; Updates &amp;bull; Programs&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/OfficialSSLGAlangilanSHS" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg sslgpic" role="img" aria-label="SSLG Alangilan SHS Chapter logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;Supreme Secondary Learner Government - Alangilan SHS Chapter&lt;/b&gt;&lt;span&gt;Student government &amp;bull; Student organizations (Orgs) &amp;bull; Announcements &amp;bull; Activities&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="bgroup"&gt;
+    &lt;div class="sh"&gt;&lt;h2&gt;Publications&lt;/h2&gt;&lt;/div&gt;
+    &lt;div class="plist"&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/theprimeashs" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg primepic" role="img" aria-label="The Prime logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;The Prime&lt;/b&gt;&lt;span&gt;ASHS student publication &amp;bull; Official page&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/AngManlalakbayOfficialPage" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg manpic" role="img" aria-label="Ang Manlalakbay logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;Ang Manlalakbay&lt;/b&gt;&lt;span&gt;Official student publication (Filipino) &amp;bull; ASHS Orgs&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="bgroup"&gt;
+    &lt;div class="sh"&gt;&lt;h2&gt;School Orgs&lt;/h2&gt;&lt;/div&gt;
+    &lt;div class="plist"&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/profile.php?id=100088401407782" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg sigmapic" role="img" aria-label="SIGMA logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;SIGMA - Alangilan Senior High School&lt;/b&gt;&lt;span&gt;Society of Innovative minds Gearing towards Magnanimous Achievements &amp;bull; Student organization (Orgs)&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/ASHSBESORG" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg bespic" role="img" aria-label="BES logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;BES - Alangilan Senior High School&lt;/b&gt;&lt;span&gt;Business Entrepreneurs Society &amp;bull; Student organization (Orgs)&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/profile.php?id=100087813887214" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg tanglawpic" role="img" aria-label="TANGLAW logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;TANGLAW - Alangilan Senior High School&lt;/b&gt;&lt;span&gt;HUMSS student organization (Orgs) &amp;bull; Official page&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="bgroup"&gt;
+    &lt;div class="sh"&gt;&lt;h2&gt;Division Orgs&lt;/h2&gt;&lt;/div&gt;
+    &lt;div class="plist"&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/yesoashs" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg yespic" role="img" aria-label="YES-O ASHS Chapter logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;Youth for Environment in Schools Organization - ASHS Chapter&lt;/b&gt;&lt;span&gt;YES-O &amp;bull; Student organization (Orgs) &amp;bull; Environment &amp;bull; Activities&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/profile.php?id=61591176084693" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg bkdpic" role="img" aria-label="Barkada Kontra Droga logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;Barkada Kontra Droga - ASHS Chapter&lt;/b&gt;&lt;span&gt;BKD &amp;bull; National Drug Education Program &amp;bull; Student organization (Orgs)&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="bgroup"&gt;
+    &lt;div class="sh"&gt;&lt;h2&gt;Other Orgs&lt;/h2&gt;&lt;/div&gt;
+    &lt;div class="plist"&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/profile.php?id=61578079209949" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg gsppic" role="img" aria-label="Girl Scouts of the Philippines logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;GSP - ASHS Chapter&lt;/b&gt;&lt;span&gt;Girl Scouts of the Philippines &amp;bull; Student organization (Orgs)&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/profile.php?id=61564125787019" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg bsppic" role="img" aria-label="Boy Scouts of the Philippines ASHS Chapter logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;ASHS - Boy Scouts of the Philippines&lt;/b&gt;&lt;span&gt;Boy Scouts of the Philippines &amp;bull; Student organization (Orgs)&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/profile.php?id=61584696603894" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg armypic" role="img" aria-label="Anointed Reigning Majestic Youth logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;Anointed Reigning Majestic Youth ASHS&lt;/b&gt;&lt;span&gt;A.S.H.S &amp;bull; Student organization (Orgs) &amp;bull; Official page&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;a class="bt card pcard" href="https://web.facebook.com/profile.php?id=61564413426411" target="_blank" rel="noopener noreferrer"&gt;&lt;div class="pimg alertpic" role="img" aria-label="ALERT SDRRM logo"&gt;&lt;/div&gt;
+      &lt;div class="pt2"&gt;&lt;b&gt;Advance Local Emergency Response Team - ASHS Chapter&lt;/b&gt;&lt;span&gt;ALERT &amp;bull; SDRRM &amp;bull; Student organization (Orgs)&lt;/span&gt;&lt;em&gt;Visit page &lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/em&gt;&lt;/div&gt;&lt;/a&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/main&gt;
+&lt;/section&gt;
+&lt;section class="view" id="acad"&gt;
+&lt;div class="topbar"&gt;&lt;button class="back" id="acback" type="button" aria-label="Back to Home"&gt;&lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;p&gt;Academic Guide&lt;/p&gt;&lt;/div&gt;
+&lt;main&gt;
+  &lt;div class="infocard"&gt;
+    &lt;div class="wmimg" role="img" aria-label="ASHS is the standard"&gt;&lt;/div&gt;
+    &lt;p&gt;Everything you need to enroll and find your way around campus: requirements, buildings, and section rooms.&lt;/p&gt;
+    &lt;div class="addr"&gt;&lt;b&gt;Alangilan Senior High School&lt;/b&gt;&lt;span&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/&gt;&lt;circle cx="12" cy="10" r="2.5"/&gt;&lt;/svg&gt;Alangilan, Batangas City&lt;/span&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;div class="actabs" id="actabs" role="tablist" aria-label="Academic Guide sections"&gt;&lt;/div&gt;
+  &lt;div id="acpanes"&gt;&lt;/div&gt;
+&lt;/main&gt;
+&lt;/section&gt;
+&lt;section class="view" id="persons"&gt;
+&lt;div class="topbar"&gt;&lt;button class="back" id="pcback" type="button" aria-label="Back to Home"&gt;&lt;svg&gt;&lt;use href="#chev"/&gt;&lt;/svg&gt;&lt;/button&gt;&lt;p&gt;Persons In Charge&lt;/p&gt;&lt;/div&gt;
+&lt;main&gt;
+  &lt;div class="infocard"&gt;
+    &lt;div class="wmimg" role="img" aria-label="ASHS is the standard"&gt;&lt;/div&gt;
+    &lt;p&gt;Meet the people in charge at Alangilan Senior High School.&lt;/p&gt;
+    &lt;div class="addr"&gt;&lt;b&gt;Alangilan Senior High School&lt;/b&gt;&lt;span&gt;&lt;svg viewBox="0 0 24 24"&gt;&lt;path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/&gt;&lt;circle cx="12" cy="10" r="2.5"/&gt;&lt;/svg&gt;Alangilan, Batangas City&lt;/span&gt;&lt;/div&gt;
+  &lt;/div&gt;
+  &lt;h2 class="lg orgh"&gt;Organizational Chart&lt;/h2&gt;
+  &lt;div id="orgchart"&gt;&lt;/div&gt;
+&lt;/main&gt;
+&lt;/section&gt;
+&lt;/div&gt;
+&lt;nav&gt;&lt;div&gt;
+  &lt;button class="on" data-v="home"&gt;&lt;svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"&gt;&lt;path d="M3 11.5 12 4l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/&gt;&lt;/svg&gt;Home&lt;/button&gt;
+  &lt;button data-v="services"&gt;&lt;svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"&gt;&lt;rect x="4" y="4" width="7" height="7" rx="2"/&gt;&lt;rect x="13" y="4" width="7" height="7" rx="2"/&gt;&lt;rect x="4" y="13" width="7" height="7" rx="2"/&gt;&lt;rect x="13" y="13" width="7" height="7" rx="2"/&gt;&lt;/svg&gt;Services&lt;/button&gt;
+  &lt;button class="rep" data-v="report"&gt;&lt;span&gt;&lt;i class="mega" aria-hidden="true"&gt;&lt;/i&gt;&lt;/span&gt;Report&lt;/button&gt;
+  &lt;button data-v="activity"&gt;&lt;svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"&gt;&lt;path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z"/&gt;&lt;path d="M8.5 8h7M8.5 12h7M8.5 16h4"/&gt;&lt;/svg&gt;Activity&lt;/button&gt;
+  &lt;button data-v="profile"&gt;&lt;svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"&gt;&lt;circle cx="12" cy="8" r="4"/&gt;&lt;path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/&gt;&lt;/svg&gt;Profile&lt;/button&gt;
+&lt;/div&gt;&lt;/nav&gt;
+&lt;div class="toast" id="toast" role="status"&gt;&lt;/div&gt;
+
+&lt;script src="script.js"&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+</pre>
+<script>
+(function(){
+var btn=document.getElementById('copy'),dl=document.getElementById('dl'),el=document.getElementById('code'),dlText=dl.textContent;
+function flash(b,t,o){b.textContent=t;setTimeout(function(){b.textContent=o},1800)}
+function fallback(){
+ try{var r=document.createRange();r.selectNodeContents(el);var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+ var ok=document.execCommand('copy');s.removeAllRanges();flash(btn,ok?'Copied \u2713':'Select and copy manually','Copy code')}catch(e){flash(btn,'Select and copy manually','Copy code')}
+}
+btn.addEventListener('click',function(){
+ var text=el.textContent;
+ if(navigator.clipboard&&navigator.clipboard.writeText){
+  navigator.clipboard.writeText(text).then(function(){flash(btn,'Copied \u2713','Copy code')},fallback)
+ }else fallback();
+});
+dl.addEventListener('click',function(){
+ try{
+  var blob=new Blob([el.textContent],{type:el.getAttribute('data-mime')+';charset=utf-8'});
+  var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=el.getAttribute('data-name');
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(a.href)},4000);flash(dl,'Downloaded \u2713',dlText)
+ }catch(e){flash(dl,'Use Copy code instead',dlText)}
+});
+})();
+</script>
+</body>
+</html>
